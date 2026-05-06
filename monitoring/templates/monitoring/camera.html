@@ -1,0 +1,182 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>NetAD Dashboard</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <h2>NET-AD</h2>
+
+        <a href="/camera/">Dashboard</a>
+
+        <a href="/camera/">Camera</a>
+
+        <a href="/logs/">Website Logs</a>
+
+        <a href="/login-attempts/">Login Attempts</a>
+
+        <a href="/camera-logs/">Camera Logs</a>
+
+        <br><br>
+
+        <a href="{% url 'logout' %}">Logout</a>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <h1>Security Monitoring Dashboard</h1>
+        </div>
+
+        <!-- STATUS CARDS -->
+        <div class="cards">
+
+            <div class="card">
+                <h3>System Status</h3>
+                <p>🟢 Online</p>
+            </div>
+
+            <div class="card">
+                <h3>Camera Status</h3>
+                <p>🟢 Connected</p>
+            </div>
+
+            <div class="card">
+                <h3>Threat Level</h3>
+                <p>🟡 Medium</p>
+            </div>
+
+        </div>
+
+        <!-- CAMERA -->
+        <div class="camera-section">
+
+            <h2>Live Camera Feed</h2>
+
+            <div class="camera-container">
+
+                <img src="{% url 'video_feed' %}" class="camera-feed">
+
+            </div>
+
+        </div>
+
+        <!-- LOGS -->
+        <div class="logs-section">
+
+            <h2>Recent Activity</h2>
+
+            <div class="logs-grid">
+
+                <!-- WEBSITE LOGS -->
+                <div class="log-box">
+
+                    <h3>Website Logs</h3>
+
+                    <ul>
+
+                        {% for log in accessLogs %}
+
+                        <li>
+                            {{ log.user }} accessed dashboard -
+                            {{ log.timestamp }}
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+                <!-- LOGIN ATTEMPTS -->
+                <div class="log-box">
+
+                    <h3>Login Attempts</h3>
+
+                    <ul>
+
+                        {% for log in loginLogs %}
+
+                        <li>
+                            {{ log.username }} -
+                            {{ log.status }} -
+                            {{ log.timestamp }}
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+                <!-- CAMERA LOGS -->
+                <div class="log-box camera-log-box">
+
+                    <h3>Camera Logs</h3>
+
+                    <ul>
+
+                        {% for log in cameraLogs %}
+
+                        <li>
+                            {{ log.event }} -
+                            {{ log.timestamp }}
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- AUTO REFRESH LOGS -->
+    <script>
+
+    setInterval(function(){
+
+        fetch(window.location.href)
+
+        .then(response => response.text())
+
+        .then(data => {
+
+            const parser = new DOMParser();
+
+            const htmlDocument =
+                parser.parseFromString(data, "text/html");
+
+            const newLogs =
+                htmlDocument.querySelector(".logs-section").innerHTML;
+
+            document.querySelector(".logs-section").innerHTML =
+                newLogs;
+
+        });
+
+    }, 3000);
+
+    </script>
+
+</body>
+
+</html>

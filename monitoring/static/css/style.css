@@ -1,0 +1,234 @@
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #111827;
+    color: white;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: #1f2937;
+    position: fixed;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    color: #00ffcc;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin: 20px 0;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    color: #00ffcc;
+}
+
+/* MAIN */
+.main {
+    margin-left: 260px;
+    padding: 20px;
+}
+
+/* TOPBAR */
+.topbar {
+    margin-bottom: 20px;
+}
+
+/* STATUS CARDS */
+.cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: #1f2937;
+    padding: 20px;
+    border-radius: 10px;
+    width: 220px;
+}
+
+/* CAMERA SECTION */
+.camera-section {
+    margin-bottom: 30px;
+}
+
+.camera-container {
+    width: 100%;
+    height: 500px;
+    background: black;
+    border: 2px solid cyan;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+.camera-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: black;
+}
+
+/* LOGS */
+.logs-section {
+    margin-top: 30px;
+    background: #1f2937;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.logs-grid {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.log-box {
+    flex: 1;
+    background: #111827;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.log-box h3 {
+    margin-bottom: 15px;
+    color: white;
+}
+
+.log-box ul {
+    padding-left: 20px;
+}
+
+.log-box li {
+    margin-bottom: 10px;
+    color: #ddd;
+}
+
+/* CAMERA LOG SCROLL */
+.camera-log-box {
+    height: 180px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+/* OPTIONAL SCROLLBAR STYLE */
+.camera-log-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.camera-log-box::-webkit-scrollbar-thumb {
+    background: cyan;
+    border-radius: 10px;
+}
+/* LOGIN PAGE */
+
+.login-body{
+    margin: 0;
+    padding: 0;
+    background: #111827;
+    font-family: Arial;
+}
+
+.login-container{
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box{
+    width: 350px;
+
+    background: #1f2937;
+
+    padding: 40px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+
+    text-align: center;
+}
+
+.login-box h1{
+    color: #00ffcc;
+    margin-bottom: 10px;
+}
+
+.login-subtitle{
+    color: #ccc;
+    margin-bottom: 30px;
+}
+
+.login-box input{
+    width: 100%;
+
+    padding: 15px;
+
+    margin-bottom: 20px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #111827;
+
+    color: white;
+
+    font-size: 16px;
+
+    box-sizing: border-box;
+}
+
+.login-box button{
+    width: 100%;
+
+    padding: 15px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #00ffcc;
+
+    color: black;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.login-box button:hover{
+    background: cyan;
+}
+.error-box{
+
+    background: #7f1d1d;
+
+    color: #fecaca;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    margin-bottom: 20px;
+
+    font-size: 14px;
+
+    border: 1px solid red;
+}

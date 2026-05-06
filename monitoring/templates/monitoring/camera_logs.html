@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Camera Logs</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="main">
+
+    <h1>Camera Logs</h1>
+
+    <div class="log-box">
+
+        <ul>
+
+            {% for log in cameraLogs %}
+
+            <li>
+
+                {{ log.event }} -
+                {{ log.timestamp }}
+
+            </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+</div>
+
+</body>
+</html>

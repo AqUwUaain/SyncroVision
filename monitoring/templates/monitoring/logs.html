@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Website Logs</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="main">
+
+    <h1>Website Logs</h1>
+
+    <div class="log-box">
+
+        <ul>
+
+            {% for log in accessLogs %}
+
+            <li>
+
+                {{ log.user }} accessed dashboard -
+                {{ log.timestamp }}
+
+            </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+</div>
+
+</body>
+</html>

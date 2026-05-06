@@ -1,0 +1,43 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Login Attempts</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+<div class="main">
+
+    <h1>Login Attempts</h1>
+
+    <div class="log-box">
+
+        <ul>
+
+            {% for log in loginLogs %}
+
+            <li>
+
+                {{ log.username }} -
+                {{ log.status }} -
+                {{ log.timestamp }}
+
+            </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+</div>
+
+</body>
+</html>

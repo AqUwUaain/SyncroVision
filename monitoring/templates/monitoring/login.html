@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>NET-AD Login</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body class="login-body">
+
+    <div class="login-container">
+
+        <div class="login-box">
+
+            <h1>NET-AD</h1>
+
+            <p class="login-subtitle">
+                Security Monitoring System
+            </p>
+
+            <!-- ERROR MESSAGE -->
+            {% if error_message %}
+
+            <div class="error-box">
+
+                {{ error_message }}
+
+            </div>
+
+            {% endif %}
+
+            <!-- LOGIN FORM -->
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    required
+                >
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    required
+                >
+
+                <button type="submit">
+
+                    LOGIN
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
