@@ -7,20 +7,30 @@
 
     <title>NetAD Dashboard</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 </head>
 
 <body>
 
+    <!-- MOBILE MENU BUTTON -->
+    <button id="menu-toggle">
+
+        ☰
+
+    </button>
+
     <!-- SIDEBAR -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
 
         <h2>NET-AD</h2>
 
-        <a href="/camera/">Dashboard</a>
+        <!-- NAVIGATION -->
+        <a href="/dashboard/">Dashboard</a>
 
-        <a href="/camera/">Camera</a>
+        <a href="/camera-settings/">Camera Settings</a>
 
         <a href="/logs/">Website Logs</a>
 
@@ -28,9 +38,22 @@
 
         <a href="/camera-logs/">Camera Logs</a>
 
+        <br>
+
+        <!-- THEME TOGGLE -->
+        <button id="theme-toggle">
+
+            🌙 Toggle Theme
+
+        </button>
+
         <br><br>
 
-        <a href="{% url 'logout' %}">Logout</a>
+        <a href="{% url 'logout' %}">
+
+            Logout
+
+        </a>
 
     </div>
 
@@ -39,25 +62,65 @@
 
         <!-- TOPBAR -->
         <div class="topbar">
-            <h1>Security Monitoring Dashboard</h1>
+
+            <!-- LEFT -->
+            <div>
+
+                <h1>Security Monitoring Dashboard</h1>
+
+                <p>
+
+                    Welcome back,
+                    {{ request.user.username }}
+
+                </p>
+
+            </div>
+
+            <!-- RIGHT CLOCK -->
+            <div class="clock-panel">
+
+                <div id="live-time">
+
+                    00:00:00
+
+                </div>
+
+                <div id="live-date">
+
+                    Loading date...
+
+                </div>
+
+            </div>
+
         </div>
 
         <!-- STATUS CARDS -->
         <div class="cards">
 
             <div class="card">
+
                 <h3>System Status</h3>
+
                 <p>🟢 Online</p>
+
             </div>
 
             <div class="card">
+
                 <h3>Camera Status</h3>
+
                 <p>🟢 Connected</p>
+
             </div>
 
             <div class="card">
+
                 <h3>Threat Level</h3>
+
                 <p>🟡 Medium</p>
+
             </div>
 
         </div>
@@ -69,7 +132,10 @@
 
             <div class="camera-container">
 
-                <img src="{% url 'video_feed' %}" class="camera-feed">
+                <img
+                    src="{% url 'video_feed' %}"
+                    class="camera-feed"
+                >
 
             </div>
 
@@ -85,15 +151,24 @@
                 <!-- WEBSITE LOGS -->
                 <div class="log-box">
 
-                    <h3>Website Logs</h3>
+                    <h3>
+
+                        Website Logs
+                        ({{ accessLogs|length }})
+
+                    </h3>
 
                     <ul>
 
                         {% for log in accessLogs %}
 
                         <li>
-                            {{ log.user }} accessed dashboard -
+
+                            {{ log.user }}
+                            accessed dashboard -
+
                             {{ log.timestamp }}
+
                         </li>
 
                         {% endfor %}
@@ -105,16 +180,24 @@
                 <!-- LOGIN ATTEMPTS -->
                 <div class="log-box">
 
-                    <h3>Login Attempts</h3>
+                    <h3>
+
+                        Login Attempts
+                        ({{ loginLogs|length }})
+
+                    </h3>
 
                     <ul>
 
                         {% for log in loginLogs %}
 
                         <li>
+
                             {{ log.username }} -
                             {{ log.status }} -
+
                             {{ log.timestamp }}
+
                         </li>
 
                         {% endfor %}
@@ -126,15 +209,23 @@
                 <!-- CAMERA LOGS -->
                 <div class="log-box camera-log-box">
 
-                    <h3>Camera Logs</h3>
+                    <h3>
+
+                        Camera Logs
+                        ({{ cameraLogs|length }})
+
+                    </h3>
 
                     <ul>
 
                         {% for log in cameraLogs %}
 
                         <li>
+
                             {{ log.event }} -
+
                             {{ log.timestamp }}
+
                         </li>
 
                         {% endfor %}
@@ -166,14 +257,110 @@
                 parser.parseFromString(data, "text/html");
 
             const newLogs =
-                htmlDocument.querySelector(".logs-section").innerHTML;
+                htmlDocument
+                .querySelector(".logs-section")
+                .innerHTML;
 
-            document.querySelector(".logs-section").innerHTML =
-                newLogs;
+            document.querySelector(".logs-section")
+            .innerHTML = newLogs;
 
         });
 
     }, 3000);
+
+    </script>
+
+    <!-- LIVE CLOCK -->
+    <script>
+
+    function updateClock(){
+
+        const now = new Date();
+
+        // TIME
+        const time =
+            now.toLocaleTimeString(
+                'en-PH',
+                {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }
+            );
+
+        // DATE
+        const date =
+            now.toLocaleDateString(
+                'en-PH',
+                {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }
+            );
+
+        document.getElementById("live-time")
+        .innerHTML = time;
+
+        document.getElementById("live-date")
+        .innerHTML = date;
+
+    }
+
+    setInterval(updateClock, 1000);
+
+    updateClock();
+
+    </script>
+
+    <!-- THEME TOGGLE -->
+    <script>
+
+    const toggleButton =
+        document.getElementById("theme-toggle");
+
+    // LOAD SAVED THEME
+    if(localStorage.getItem("theme") === "light"){
+
+        document.body.classList.add("light-mode");
+
+    }
+
+    toggleButton.addEventListener("click", () => {
+
+        document.body.classList.toggle("light-mode");
+
+        // SAVE THEME
+        if(document.body.classList.contains("light-mode")){
+
+            localStorage.setItem("theme", "light");
+
+        }
+        else{
+
+            localStorage.setItem("theme", "dark");
+
+        }
+
+    });
+
+    </script>
+
+    <!-- SIDEBAR TOGGLE -->
+    <script>
+
+    const menuToggle =
+        document.getElementById("menu-toggle");
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    menuToggle.addEventListener("click", () => {
+
+        sidebar.classList.toggle("show-sidebar");
+
+    });
 
     </script>
 

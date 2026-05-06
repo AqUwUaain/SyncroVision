@@ -1,0 +1,208 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Camera Settings</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button id="menu-toggle">
+
+        ☰
+
+    </button>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+
+        <h2>NET-AD</h2>
+
+        <a href="/dashboard/">Dashboard</a>
+
+        <a href="/camera-settings/">Camera Settings</a>
+
+        <a href="/logs/">Website Logs</a>
+
+        <a href="/login-attempts/">Login Attempts</a>
+
+        <a href="/camera-logs/">Camera Logs</a>
+
+        <br>
+
+        <!-- THEME BUTTON -->
+        <button id="theme-toggle">
+
+            🌙 Toggle Theme
+
+        </button>
+
+        <br><br>
+
+        <a href="{% url 'logout' %}">
+
+            Logout
+
+        </a>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+
+            <h1>Camera Settings</h1>
+
+            <p id="live-clock"></p>
+
+        </div>
+
+        <!-- CAMERA SETTINGS -->
+        <div class="logs-section">
+
+            <h2>Select Camera Source</h2>
+
+            <div class="log-box">
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <label>
+
+                        Available Cameras
+
+                    </label>
+
+                    <br><br>
+
+                    <select
+                        name="camera_index"
+                        class="camera-select"
+                    >
+
+                        <option value="0">
+
+                            Integrated Webcam
+
+                        </option>
+
+                        <option value="1">
+
+                            NVIDIA Broadcast
+
+                        </option>
+
+                        <option value="2">
+
+                            USB Camera
+
+                        </option>
+
+                        <option value="3">
+
+                            OBS Virtual Camera
+
+                        </option>
+
+                    </select>
+
+                    <br><br>
+
+                    <button
+                        type="submit"
+                        class="save-camera-btn"
+                    >
+
+                        Save Camera
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- LIVE CLOCK -->
+    <script>
+
+    function updateClock(){
+
+        const now = new Date();
+
+        document.getElementById("live-clock")
+        .innerHTML = now.toLocaleString();
+
+    }
+
+    setInterval(updateClock, 1000);
+
+    updateClock();
+
+    </script>
+
+    <!-- THEME TOGGLE -->
+    <script>
+
+    const toggleButton =
+        document.getElementById("theme-toggle");
+
+    if(localStorage.getItem("theme") === "light"){
+
+        document.body.classList.add("light-mode");
+
+    }
+
+    toggleButton.addEventListener("click", () => {
+
+        document.body.classList.toggle("light-mode");
+
+        if(document.body.classList.contains("light-mode")){
+
+            localStorage.setItem("theme", "light");
+
+        }
+        else{
+
+            localStorage.setItem("theme", "dark");
+
+        }
+
+    });
+
+    </script>
+
+    <!-- SIDEBAR TOGGLE -->
+    <script>
+
+    const menuToggle =
+        document.getElementById("menu-toggle");
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    menuToggle.addEventListener("click", () => {
+
+        sidebar.classList.toggle("show-sidebar");
+
+    });
+
+    </script>
+
+</body>
+
+</html>

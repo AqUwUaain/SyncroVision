@@ -1,12 +1,20 @@
 import cv2
-from django.http import StreamingHttpResponse
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-from .models import AccessLog, LoginLog, CameraLog
 import time
 
+from django.http import StreamingHttpResponse
+from django.shortcuts import render, redirect
 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+
+from .models import AccessLog, LoginLog, CameraLog
+
+
+# GLOBAL CAMERA INDEX
+CURRENT_CAMERA_INDEX = 0
+
+
+# LOGIN
 def login_view(request):
 
     error_message = None
@@ -14,7 +22,6 @@ def login_view(request):
     if request.method == 'POST':
 
         username = request.POST['username']
-
         password = request.POST['password']
 
         user = authenticate(
@@ -25,6 +32,7 @@ def login_view(request):
 
         ip = request.META.get('REMOTE_ADDR')
 
+        # SUCCESS
         if user is not None:
 
             LoginLog.objects.create(
@@ -35,8 +43,9 @@ def login_view(request):
 
             login(request, user)
 
-            return redirect('/camera/')
+            return redirect('/dashboard/')
 
+        # FAILED
         else:
 
             LoginLog.objects.create(
@@ -55,8 +64,20 @@ def login_view(request):
         }
     )
 
+
+# LOGOUT
 @login_required
-def camera_view(request):
+def logout_view(request):
+
+    logout(request)
+
+    return redirect('/')
+
+
+# DASHBOARD
+@login_required
+def dashboard_view(request):
+
     ip = request.META.get('REMOTE_ADDR')
 
     AccessLog.objects.create(
@@ -74,11 +95,52 @@ def camera_view(request):
         'cameraLogs': cameraLogs,
     }
 
-    return render(request, 'monitoring/camera.html', context)
+    return render(
+        request,
+        'monitoring/camera.html',
+        context
+    )
 
+
+# CAMERA SETTINGS
+@login_required
+def camera_settings_view(request):
+
+    global CURRENT_CAMERA_INDEX
+
+    if request.method == 'POST':
+
+        try:
+
+            CURRENT_CAMERA_INDEX = int(
+                request.POST.get('camera_index')
+            )
+
+        except:
+
+            CURRENT_CAMERA_INDEX = 0
+
+    return render(
+        request,
+        'monitoring/camera_settings.html',
+        {
+            'current_camera': CURRENT_CAMERA_INDEX
+        }
+    )
+
+
+# CAMERA SYSTEM
 def generate_frames():
 
-    camera = cv2.VideoCapture(0)
+    global CURRENT_CAMERA_INDEX
+
+    camera = cv2.VideoCapture(
+        CURRENT_CAMERA_INDEX,
+        cv2.CAP_DSHOW
+    )
+
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades +
@@ -97,84 +159,23 @@ def generate_frames():
         if not success:
             break
 
-        # CURRENT TIME
         current_time = time.time()
 
-        # Resize frame
-        frame = cv2.resize(frame, (800, 500))
+        # RESIZE
+        frame = cv2.resize(frame, (900, 550))
 
-        # Convert to grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        # Blur image
-        gray_blur = cv2.GaussianBlur(gray, (21, 21), 0)
-
-        # INITIAL FRAME
-        if previous_frame is None:
-            previous_frame = gray_blur
-            continue
-
-        # FRAME DIFFERENCE
-        delta_frame = cv2.absdiff(
-            previous_frame,
-            gray_blur
+        # GRAYSCALE
+        gray = cv2.cvtColor(
+            frame,
+            cv2.COLOR_BGR2GRAY
         )
-
-        # UPDATE BACKGROUND FRAME EVERY 1 SECOND
-        if current_time - last_motion_update > 1:
-
-            previous_frame = gray_blur
-
-            last_motion_update = current_time
-
-        # THRESHOLD
-        thresh_frame = cv2.threshold(
-            delta_frame,
-            30,
-            255,
-            cv2.THRESH_BINARY
-        )[1]
-
-        thresh_frame = cv2.dilate(
-            thresh_frame,
-            None,
-            iterations=2
-        )
-
-        # FIND CONTOURS
-        contours, _ = cv2.findContours(
-            thresh_frame,
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
-        )
-
-        motion_detected = False
-
-        for contour in contours:
-
-            # IGNORE SMALL MOVEMENTS
-            if cv2.contourArea(contour) < 3500:
-                continue
-
-            motion_detected = True
-
-            (x, y, w, h) = cv2.boundingRect(contour)
-
-            # GREEN MOTION BOX
-            cv2.rectangle(
-                frame,
-                (x, y),
-                (x + w, y + h),
-                (0, 255, 0),
-                3
-            )
 
         # FACE DETECTION
         faces = face_cascade.detectMultiScale(
             gray,
-            scaleFactor=1.2,
-            minNeighbors=7,
-            minSize=(90, 90)
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(70, 70)
         )
 
         face_detected = False
@@ -183,7 +184,6 @@ def generate_frames():
 
             face_detected = True
 
-            # BLUE FACE BOX
             cv2.rectangle(
                 frame,
                 (x, y),
@@ -202,6 +202,73 @@ def generate_frames():
                 2
             )
 
+        # MOTION DETECTION
+        gray_blur = cv2.GaussianBlur(
+            gray,
+            (21, 21),
+            0
+        )
+
+        if previous_frame is None:
+
+            previous_frame = gray_blur
+
+            continue
+
+        delta_frame = cv2.absdiff(
+            previous_frame,
+            gray_blur
+        )
+
+        if current_time - last_motion_update > 0.5:
+
+            previous_frame = gray_blur
+
+            last_motion_update = current_time
+
+        thresh_frame = cv2.threshold(
+            delta_frame,
+            35,
+            255,
+            cv2.THRESH_BINARY
+        )[1]
+
+        thresh_frame = cv2.dilate(
+            thresh_frame,
+            None,
+            iterations=2
+        )
+
+        contours, _ = cv2.findContours(
+            thresh_frame,
+            cv2.RETR_EXTERNAL,
+            cv2.CHAIN_APPROX_SIMPLE
+        )
+
+        motion_detected = False
+
+        for contour in contours:
+
+            area = cv2.contourArea(contour)
+
+            if area < 3500:
+                continue
+
+            (x, y, w, h) = cv2.boundingRect(contour)
+
+            if w < 40 or h < 40:
+                continue
+
+            motion_detected = True
+
+            cv2.rectangle(
+                frame,
+                (x, y),
+                (x + w, y + h),
+                (0, 255, 0),
+                3
+            )
+
         # HUMAN ACTIVITY
         if motion_detected and face_detected:
 
@@ -215,7 +282,6 @@ def generate_frames():
                 3
             )
 
-            # SAVE LOG EVERY 10 SECONDS
             if current_time - last_log_time > 10:
 
                 CameraLog.objects.create(
@@ -224,7 +290,6 @@ def generate_frames():
 
                 last_log_time = current_time
 
-        # ONLY MOTION
         elif motion_detected:
 
             cv2.putText(
@@ -237,8 +302,11 @@ def generate_frames():
                 3
             )
 
-        # CONVERT FRAME
-        ret, buffer = cv2.imencode('.jpg', frame)
+        # ENCODE FRAME
+        ret, buffer = cv2.imencode(
+            '.jpg',
+            frame
+        )
 
         frame = buffer.tobytes()
 
@@ -249,13 +317,19 @@ def generate_frames():
             b'\r\n'
         )
 
+    camera.release()
 
+
+# VIDEO FEED
 def video_feed(request):
+
     return StreamingHttpResponse(
         generate_frames(),
         content_type='multipart/x-mixed-replace; boundary=frame'
     )
 
+
+# WEBSITE LOGS
 @login_required
 def logs_view(request):
 
@@ -270,6 +344,7 @@ def logs_view(request):
     )
 
 
+# LOGIN LOGS
 @login_required
 def login_attempts_view(request):
 
@@ -284,6 +359,7 @@ def login_attempts_view(request):
     )
 
 
+# CAMERA LOGS
 @login_required
 def camera_logs_view(request):
 
@@ -296,9 +372,3 @@ def camera_logs_view(request):
             'cameraLogs': cameraLogs
         }
     )
-@login_required
-def logout_view(request):
-
-    logout(request)
-
-    return redirect('/')

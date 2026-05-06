@@ -7,11 +7,20 @@
 
     <title>NET-AD Login</title>
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 </head>
 
 <body class="login-body">
+
+    <!-- THEME BUTTON -->
+    <button id="login-theme-toggle">
+
+        🌙 Toggle Theme
+
+    </button>
 
     <div class="login-container">
 
@@ -20,7 +29,9 @@
             <h1>NET-AD</h1>
 
             <p class="login-subtitle">
+
                 Security Monitoring System
+
             </p>
 
             <!-- ERROR MESSAGE -->
@@ -34,7 +45,6 @@
 
             {% endif %}
 
-            <!-- LOGIN FORM -->
             <form method="POST">
 
                 {% csrf_token %}
@@ -64,6 +74,39 @@
         </div>
 
     </div>
+
+    <!-- THEME SCRIPT -->
+    <script>
+
+    const loginThemeButton =
+        document.getElementById("login-theme-toggle");
+
+    // LOAD SAVED THEME
+    if(localStorage.getItem("theme") === "light"){
+
+        document.body.classList.add("light-mode");
+
+    }
+
+    loginThemeButton.addEventListener("click", () => {
+
+        document.body.classList.toggle("light-mode");
+
+        // SAVE THEME
+        if(document.body.classList.contains("light-mode")){
+
+            localStorage.setItem("theme", "light");
+
+        }
+        else{
+
+            localStorage.setItem("theme", "dark");
+
+        }
+
+    });
+
+    </script>
 
 </body>
 
