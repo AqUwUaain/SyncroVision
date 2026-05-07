@@ -27,10 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
+    'localhost',
     '192.168.1.2',
     '.ngrok-free.app',
     '.ngrok-free.dev'
 ]
+
 CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app',
     'https://*.ngrok-free.dev',
@@ -124,3 +126,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "monitoring/static",
+]
+
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
