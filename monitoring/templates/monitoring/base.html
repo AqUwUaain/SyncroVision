@@ -1,0 +1,130 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        {% block title %}
+        NET-AD
+        {% endblock %}
+    </title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
+
+</head>
+
+<body>
+
+    <!-- MOBILE MENU -->
+    <button id="menu-toggle">
+        ☰
+    </button>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+
+        <h2>NET-AD</h2>
+
+        <a href="/dashboard/">
+            Dashboard
+        </a>
+
+        <a href="/camera-settings/">
+            Camera Settings
+        </a>
+
+        <a href="/logs/">
+            Website Logs
+        </a>
+
+        <a href="/login-attempts/">
+            Login Attempts
+        </a>
+
+        <a href="/camera-logs/">
+            Camera Logs
+        </a>
+
+        <br>
+
+        <button id="theme-toggle">
+            🌙 Toggle Theme
+        </button>
+
+        <br><br>
+
+        <a href="{% url 'logout' %}">
+            Logout
+        </a>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+    <!-- THEME -->
+    <script>
+
+    const toggleButton =
+        document.getElementById("theme-toggle");
+
+    if(localStorage.getItem("theme") === "light"){
+
+        document.body.classList.add("light-mode");
+
+    }
+
+    toggleButton.addEventListener("click", () => {
+
+        document.body.classList.toggle("light-mode");
+
+        if(document.body.classList.contains("light-mode")){
+
+            localStorage.setItem("theme", "light");
+
+        }
+        else{
+
+            localStorage.setItem("theme", "dark");
+
+        }
+
+    });
+
+    </script>
+
+    <!-- SIDEBAR -->
+    <script>
+
+    const menuToggle =
+        document.getElementById("menu-toggle");
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    menuToggle.addEventListener("click", () => {
+
+        sidebar.classList.toggle("show-sidebar");
+
+    });
+
+    </script>
+
+</body>
+
+</html>

@@ -1,31 +1,39 @@
-{% load static %}
+{% extends 'monitoring/base.html' %}
 
-<!DOCTYPE html>
-<html>
+{% block title %}
+Website Logs
+{% endblock %}
 
-<head>
+{% block content %}
 
-    <title>Website Logs</title>
+<div class="topbar">
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <h1>
+        Website Logs
+    </h1>
 
-</head>
+</div>
 
-<body>
+<div class="logs-section">
 
-<div class="main">
+    <div class="log-box scrollable-log-box">
 
-    <h1>Website Logs</h1>
+        <input
+            type="text"
+            id="log-search"
+            placeholder="Search website logs..."
+            class="log-search"
+        >
 
-    <div class="log-box">
-
-        <ul>
+        <ul id="log-list">
 
             {% for log in accessLogs %}
 
             <li>
 
-                {{ log.user }} accessed dashboard -
+                {{ log.user }}
+                accessed dashboard -
+
                 {{ log.timestamp }}
 
             </li>
@@ -38,5 +46,33 @@
 
 </div>
 
-</body>
-</html>
+<script>
+
+const searchInput =
+    document.getElementById("log-search");
+
+searchInput.addEventListener("keyup", () => {
+
+    const filter =
+        searchInput.value.toLowerCase();
+
+    const logs =
+        document.querySelectorAll("#log-list li");
+
+    logs.forEach(log => {
+
+        const text =
+            log.textContent.toLowerCase();
+
+        log.style.display =
+            text.includes(filter)
+            ? ""
+            : "none";
+
+    });
+
+});
+
+</script>
+
+{% endblock %}
