@@ -7,11 +7,15 @@
 
     <title>Camera Settings</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet"
-          href="{% static 'css/style.css' %}">
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
 
 </head>
 
@@ -26,13 +30,17 @@
 
     <h2>NET-AD</h2>
 
-    <a href="/dashboard/">Dashboard</a>
+    <a href="/dashboard/">
+        Dashboard
+    </a>
 
     <a href="/camera-settings/">
         Camera Settings
     </a>
 
-    <a href="/logs/">Website Logs</a>
+    <a href="/logs/">
+        Website Logs
+    </a>
 
     <a href="/login-attempts/">
         Login Attempts
@@ -63,7 +71,9 @@
 
     <div class="topbar">
 
-        <h1>Camera Settings</h1>
+        <h1>
+            Camera Settings
+        </h1>
 
     </div>
 
@@ -96,13 +106,23 @@
                     id="camera-mode"
                 >
 
-                    <option value="local">
+                    <option
+                        value="local"
+                        {% if current_mode == "local" %}
+                        selected
+                        {% endif %}
+                    >
 
                         Local Camera
 
                     </option>
 
-                    <option value="ip">
+                    <option
+                        value="ip"
+                        {% if current_mode == "ip" %}
+                        selected
+                        {% endif %}
+                    >
 
                         IP Camera / RTSP
 
@@ -128,29 +148,20 @@
                         class="camera-select"
                     >
 
-                        <option value="0">
+                        {% for camera in available_cameras %}
 
-                            Integrated Webcam
+                        <option
+                            value="{{ forloop.counter0 }}"
+                            {% if forloop.counter0 == current_camera %}
+                            selected
+                            {% endif %}
+                        >
 
-                        </option>
-
-                        <option value="1">
-
-                            NVIDIA Broadcast
-
-                        </option>
-
-                        <option value="2">
-
-                            USB Camera
+                            {{ camera }}
 
                         </option>
 
-                        <option value="3">
-
-                            OBS Virtual Camera
-
-                        </option>
+                        {% endfor %}
 
                     </select>
 
@@ -175,6 +186,7 @@
                         name="camera_url"
                         class="camera-select"
                         placeholder="rtsp:// or http://"
+                        value="{{ current_url }}"
                     >
 
                     <br><br>
@@ -219,7 +231,7 @@ const localBox =
 const ipBox =
     document.getElementById("ip-camera-box");
 
-cameraMode.addEventListener("change", () => {
+function updateCameraMode(){
 
     if(cameraMode.value === "local"){
 
@@ -237,7 +249,14 @@ cameraMode.addEventListener("change", () => {
 
     }
 
-});
+}
+
+cameraMode.addEventListener(
+    "change",
+    updateCameraMode
+);
+
+updateCameraMode();
 
 </script>
 

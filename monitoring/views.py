@@ -2,6 +2,7 @@ import cv2
 import time
 import numpy as np
 
+from pygrabber.dshow_graph import FilterGraph
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, redirect
 
@@ -20,6 +21,27 @@ CURRENT_CAMERA_MODE = "local"
 CURRENT_CAMERA_INDEX = 0
 
 CURRENT_CAMERA_URL = ""
+# DETECT AVAILABLE CAMERAS
+def get_available_cameras():
+
+    try:
+
+        graph = FilterGraph()
+
+        devices = graph.get_input_devices()
+
+        return devices
+
+    except:
+
+        return []
+
+# LIVE MONITOR VARIABLES
+CURRENT_FPS = 0
+
+CURRENT_DETECTION_STATUS = "IDLE"
+
+CURRENT_STREAM_STATUS = "Offline"
 
 
 # =========================
@@ -95,6 +117,10 @@ def logout_view(request):
 @login_required
 def dashboard_view(request):
 
+    global CURRENT_FPS
+    global CURRENT_DETECTION_STATUS
+    global CURRENT_STREAM_STATUS
+
     ip = request.META.get('REMOTE_ADDR')
 
     AccessLog.objects.create(
@@ -109,10 +135,20 @@ def dashboard_view(request):
     # CAMERA SOURCE DISPLAY
     if CURRENT_CAMERA_MODE == "local":
 
-        current_source = (
-            f"Local Camera "
-            f"({CURRENT_CAMERA_INDEX})"
-        )
+        available_cameras = get_available_cameras()
+
+        try:
+
+            current_source = available_cameras[
+                CURRENT_CAMERA_INDEX
+             ]
+
+        except:
+
+            current_source = (
+                f"Local Camera "
+                f"({CURRENT_CAMERA_INDEX})"
+            )
 
     else:
 
@@ -126,6 +162,10 @@ def dashboard_view(request):
 
         'camera_mode': CURRENT_CAMERA_MODE,
         'camera_source': current_source,
+
+        'current_fps': CURRENT_FPS,
+        'detection_status': CURRENT_DETECTION_STATUS,
+        'stream_status': CURRENT_STREAM_STATUS,
 
     }
 
@@ -177,15 +217,18 @@ def camera_settings_view(request):
                 'camera_url'
             )
 
+    available_cameras = get_available_cameras()
+
     return render(
         request,
-        'monitoring/camera_settings.html',
-        {
-            'current_camera': CURRENT_CAMERA_INDEX,
-            'current_mode': CURRENT_CAMERA_MODE,
-            'current_url': CURRENT_CAMERA_URL
-        }
-    )
+            'monitoring/camera_settings.html',
+            {
+                'current_camera': CURRENT_CAMERA_INDEX,
+                'current_mode': CURRENT_CAMERA_MODE,
+                'current_url': CURRENT_CAMERA_URL,
+                'available_cameras': available_cameras
+            }
+)
 
 
 # =========================
@@ -197,6 +240,10 @@ def generate_frames():
     global CURRENT_CAMERA_MODE
     global CURRENT_CAMERA_INDEX
     global CURRENT_CAMERA_URL
+
+    global CURRENT_FPS
+    global CURRENT_DETECTION_STATUS
+    global CURRENT_STREAM_STATUS
 
     # OPEN CAMERA
     if CURRENT_CAMERA_MODE == "local":
@@ -227,12 +274,17 @@ def generate_frames():
     last_log_time = 0
     last_motion_update = 0
 
+    # FPS TIMER
+    prev_frame_time = time.time()
+
     while True:
 
         success, frame = camera.read()
 
         # CAMERA FAILED
         if not success:
+
+            CURRENT_STREAM_STATUS = "Offline"
 
             black_frame = (
                 255 *
@@ -267,6 +319,20 @@ def generate_frames():
             )
 
             continue
+
+        CURRENT_STREAM_STATUS = "Excellent"
+
+        # REAL FPS
+        new_frame_time = time.time()
+
+        fps = 1 / (
+            new_frame_time -
+            prev_frame_time
+        )
+
+        prev_frame_time = new_frame_time
+
+        CURRENT_FPS = int(fps)
 
         current_time = time.time()
 
@@ -386,6 +452,8 @@ def generate_frames():
         # HUMAN ACTIVITY
         if motion_detected and face_detected:
 
+            CURRENT_DETECTION_STATUS = "ACTIVE"
+
             cv2.putText(
                 frame,
                 "HUMAN ACTIVITY DETECTED",
@@ -406,6 +474,8 @@ def generate_frames():
 
         elif motion_detected:
 
+            CURRENT_DETECTION_STATUS = "MOTION"
+
             cv2.putText(
                 frame,
                 "MOTION DETECTED",
@@ -415,6 +485,10 @@ def generate_frames():
                 (0, 255, 255),
                 3
             )
+
+        else:
+
+            CURRENT_DETECTION_STATUS = "IDLE"
 
         # CAMERA SOURCE LABEL
         cv2.putText(
