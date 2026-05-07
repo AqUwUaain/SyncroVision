@@ -17,9 +17,7 @@
 
     <!-- MOBILE MENU BUTTON -->
     <button id="menu-toggle">
-
         ☰
-
     </button>
 
     <!-- SIDEBAR -->
@@ -27,7 +25,6 @@
 
         <h2>NET-AD</h2>
 
-        <!-- NAVIGATION -->
         <a href="/dashboard/">Dashboard</a>
 
         <a href="/camera-settings/">Camera Settings</a>
@@ -40,19 +37,14 @@
 
         <br>
 
-        <!-- THEME TOGGLE -->
         <button id="theme-toggle">
-
             🌙 Toggle Theme
-
         </button>
 
         <br><br>
 
         <a href="{% url 'logout' %}">
-
             Logout
-
         </a>
 
     </div>
@@ -63,63 +55,132 @@
         <!-- TOPBAR -->
         <div class="topbar">
 
-            <!-- LEFT -->
             <div>
 
                 <h1>Security Monitoring Dashboard</h1>
 
                 <p>
-
                     Welcome back,
                     {{ request.user.username }}
-
                 </p>
 
             </div>
 
-            <!-- RIGHT CLOCK -->
+            <!-- CLOCK -->
             <div class="clock-panel">
 
                 <div id="live-time">
-
                     00:00:00
-
                 </div>
 
                 <div id="live-date">
-
                     Loading date...
-
                 </div>
 
             </div>
 
         </div>
 
-        <!-- STATUS CARDS -->
-        <div class="cards">
+        <!-- TOP DASHBOARD -->
+        <div class="top-dashboard">
 
-            <div class="card">
+            <div class="cards">
 
-                <h3>System Status</h3>
+                <!-- SYSTEM STATUS -->
+                <div class="card">
 
-                <p>🟢 Online</p>
+                    <h3>System Status</h3>
 
-            </div>
+                    <p>🟢 Online</p>
 
-            <div class="card">
+                </div>
 
-                <h3>Camera Status</h3>
+                <!-- CAMERA STATUS -->
+                <div class="card">
 
-                <p>🟢 Connected</p>
+                    <h3>Camera Status</h3>
 
-            </div>
+                    <p>🟢 Connected</p>
 
-            <div class="card">
+                </div>
 
-                <h3>Threat Level</h3>
+                <!-- THREAT LEVEL -->
+                <div class="card">
 
-                <p>🟡 Medium</p>
+                    <h3>Threat Level</h3>
+
+                    <p>🟡 Medium</p>
+
+                </div>
+
+                <!-- LIVE MONITOR -->
+                <div class="monitor-panel">
+
+                    <h2>
+                        LIVE MONITOR
+                    </h2>
+
+                    <div class="monitor-item">
+
+                        <span>ACTIVE CAMERA</span>
+
+                        <strong>
+                            NVIDIA Broadcast
+                        </strong>
+
+                    </div>
+
+                    <div class="monitor-item">
+
+                        <span>CAMERA TYPE</span>
+
+                        <strong>
+                            LOCAL
+                        </strong>
+
+                    </div>
+
+                    <div class="monitor-item">
+
+                        <span>STREAM HEALTH</span>
+
+                        <strong class="healthy">
+                            Excellent
+                        </strong>
+
+                    </div>
+
+                    <div class="monitor-item">
+
+                        <span>FPS</span>
+
+                        <strong id="fps-counter">
+                            30 FPS
+                        </strong>
+
+                    </div>
+
+                    <div class="monitor-item">
+
+                        <span>LATENCY</span>
+
+                        <strong>
+                            32 ms
+                        </strong>
+
+                    </div>
+
+                    <div class="monitor-item">
+
+                        <span>DETECTION</span>
+
+                        <strong class="active-detection">
+                            ACTIVE
+                        </strong>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -128,7 +189,9 @@
         <!-- CAMERA -->
         <div class="camera-section">
 
-            <h2>Live Camera Feed</h2>
+            <h2>
+                Live Camera Feed
+            </h2>
 
             <div class="camera-container">
 
@@ -144,7 +207,9 @@
         <!-- LOGS -->
         <div class="logs-section">
 
-            <h2>Recent Activity</h2>
+            <h2>
+                Recent Activity
+            </h2>
 
             <div class="logs-grid">
 
@@ -152,10 +217,8 @@
                 <div class="log-box">
 
                     <h3>
-
                         Website Logs
                         ({{ accessLogs|length }})
-
                     </h3>
 
                     <ul>
@@ -177,14 +240,12 @@
 
                 </div>
 
-                <!-- LOGIN ATTEMPTS -->
+                <!-- LOGIN LOGS -->
                 <div class="log-box">
 
                     <h3>
-
                         Login Attempts
                         ({{ loginLogs|length }})
-
                     </h3>
 
                     <ul>
@@ -195,7 +256,6 @@
 
                             {{ log.username }} -
                             {{ log.status }} -
-
                             {{ log.timestamp }}
 
                         </li>
@@ -210,10 +270,8 @@
                 <div class="log-box camera-log-box">
 
                     <h3>
-
                         Camera Logs
                         ({{ cameraLogs|length }})
-
                     </h3>
 
                     <ul>
@@ -223,7 +281,6 @@
                         <li>
 
                             {{ log.event }} -
-
                             {{ log.timestamp }}
 
                         </li>
@@ -240,7 +297,7 @@
 
     </div>
 
-    <!-- AUTO REFRESH LOGS -->
+    <!-- AUTO REFRESH -->
     <script>
 
     setInterval(function(){
@@ -270,14 +327,13 @@
 
     </script>
 
-    <!-- LIVE CLOCK -->
+    <!-- CLOCK -->
     <script>
 
     function updateClock(){
 
         const now = new Date();
 
-        // TIME
         const time =
             now.toLocaleTimeString(
                 'en-PH',
@@ -288,7 +344,6 @@
                 }
             );
 
-        // DATE
         const date =
             now.toLocaleDateString(
                 'en-PH',
@@ -314,13 +369,33 @@
 
     </script>
 
-    <!-- THEME TOGGLE -->
+    <!-- FPS -->
+    <script>
+
+    function updateFPS(){
+
+        const fps =
+            Math.floor(
+                Math.random() * (32 - 24) + 24
+            );
+
+        document.getElementById("fps-counter")
+        .innerHTML = fps + " FPS";
+
+    }
+
+    setInterval(updateFPS, 1000);
+
+    updateFPS();
+
+    </script>
+
+    <!-- THEME -->
     <script>
 
     const toggleButton =
         document.getElementById("theme-toggle");
 
-    // LOAD SAVED THEME
     if(localStorage.getItem("theme") === "light"){
 
         document.body.classList.add("light-mode");
@@ -331,7 +406,6 @@
 
         document.body.classList.toggle("light-mode");
 
-        // SAVE THEME
         if(document.body.classList.contains("light-mode")){
 
             localStorage.setItem("theme", "light");
@@ -347,7 +421,7 @@
 
     </script>
 
-    <!-- SIDEBAR TOGGLE -->
+    <!-- SIDEBAR -->
     <script>
 
     const menuToggle =

@@ -1,5 +1,6 @@
 import cv2
 import time
+import numpy as np
 
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, redirect
@@ -10,11 +11,21 @@ from django.contrib.auth import authenticate, login, logout
 from .models import AccessLog, LoginLog, CameraLog
 
 
-# GLOBAL CAMERA INDEX
+# =========================
+# CAMERA CONFIG
+# =========================
+
+CURRENT_CAMERA_MODE = "local"
+
 CURRENT_CAMERA_INDEX = 0
 
+CURRENT_CAMERA_URL = ""
 
+
+# =========================
 # LOGIN
+# =========================
+
 def login_view(request):
 
     error_message = None
@@ -65,7 +76,10 @@ def login_view(request):
     )
 
 
+# =========================
 # LOGOUT
+# =========================
+
 @login_required
 def logout_view(request):
 
@@ -74,7 +88,10 @@ def logout_view(request):
     return redirect('/')
 
 
+# =========================
 # DASHBOARD
+# =========================
+
 @login_required
 def dashboard_view(request):
 
@@ -89,10 +106,27 @@ def dashboard_view(request):
     loginLogs = LoginLog.objects.order_by('-timestamp')[:5]
     cameraLogs = CameraLog.objects.order_by('-timestamp')[:5]
 
+    # CAMERA SOURCE DISPLAY
+    if CURRENT_CAMERA_MODE == "local":
+
+        current_source = (
+            f"Local Camera "
+            f"({CURRENT_CAMERA_INDEX})"
+        )
+
+    else:
+
+        current_source = CURRENT_CAMERA_URL
+
     context = {
+
         'accessLogs': accessLogs,
         'loginLogs': loginLogs,
         'cameraLogs': cameraLogs,
+
+        'camera_mode': CURRENT_CAMERA_MODE,
+        'camera_source': current_source,
+
     }
 
     return render(
@@ -102,46 +136,87 @@ def dashboard_view(request):
     )
 
 
+# =========================
 # CAMERA SETTINGS
+# =========================
+
 @login_required
 def camera_settings_view(request):
 
+    global CURRENT_CAMERA_MODE
     global CURRENT_CAMERA_INDEX
+    global CURRENT_CAMERA_URL
 
     if request.method == 'POST':
 
-        try:
+        camera_mode = request.POST.get(
+            'camera_mode'
+        )
 
-            CURRENT_CAMERA_INDEX = int(
-                request.POST.get('camera_index')
+        CURRENT_CAMERA_MODE = camera_mode
+
+        # LOCAL CAMERA
+        if camera_mode == "local":
+
+            try:
+
+                CURRENT_CAMERA_INDEX = int(
+                    request.POST.get(
+                        'camera_index'
+                    )
+                )
+
+            except:
+
+                CURRENT_CAMERA_INDEX = 0
+
+        # IP CAMERA
+        elif camera_mode == "ip":
+
+            CURRENT_CAMERA_URL = request.POST.get(
+                'camera_url'
             )
-
-        except:
-
-            CURRENT_CAMERA_INDEX = 0
 
     return render(
         request,
         'monitoring/camera_settings.html',
         {
-            'current_camera': CURRENT_CAMERA_INDEX
+            'current_camera': CURRENT_CAMERA_INDEX,
+            'current_mode': CURRENT_CAMERA_MODE,
+            'current_url': CURRENT_CAMERA_URL
         }
     )
 
 
+# =========================
 # CAMERA SYSTEM
+# =========================
+
 def generate_frames():
 
+    global CURRENT_CAMERA_MODE
     global CURRENT_CAMERA_INDEX
+    global CURRENT_CAMERA_URL
 
-    camera = cv2.VideoCapture(
-        CURRENT_CAMERA_INDEX,
-        cv2.CAP_DSHOW
-    )
+    # OPEN CAMERA
+    if CURRENT_CAMERA_MODE == "local":
 
+        camera = cv2.VideoCapture(
+            CURRENT_CAMERA_INDEX,
+            cv2.CAP_DSHOW
+        )
+
+    else:
+
+        camera = cv2.VideoCapture(
+            CURRENT_CAMERA_URL
+        )
+
+    # CAMERA SETTINGS
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
+    # FACE DETECTION
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades +
         'haarcascade_frontalface_default.xml'
@@ -156,13 +231,50 @@ def generate_frames():
 
         success, frame = camera.read()
 
+        # CAMERA FAILED
         if not success:
-            break
+
+            black_frame = (
+                255 *
+                np.ones(
+                    (500, 900, 3),
+                    dtype=np.uint8
+                )
+            )
+
+            cv2.putText(
+                black_frame,
+                "CAMERA OFFLINE",
+                (250, 250),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1.2,
+                (0, 0, 255),
+                3
+            )
+
+            ret, buffer = cv2.imencode(
+                '.jpg',
+                black_frame
+            )
+
+            frame = buffer.tobytes()
+
+            yield (
+                b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' +
+                frame +
+                b'\r\n'
+            )
+
+            continue
 
         current_time = time.time()
 
         # RESIZE
-        frame = cv2.resize(frame, (900, 550))
+        frame = cv2.resize(
+            frame,
+            (900, 550)
+        )
 
         # GRAYSCALE
         gray = cv2.cvtColor(
@@ -254,7 +366,9 @@ def generate_frames():
             if area < 3500:
                 continue
 
-            (x, y, w, h) = cv2.boundingRect(contour)
+            (x, y, w, h) = cv2.boundingRect(
+                contour
+            )
 
             if w < 40 or h < 40:
                 continue
@@ -302,6 +416,17 @@ def generate_frames():
                 3
             )
 
+        # CAMERA SOURCE LABEL
+        cv2.putText(
+            frame,
+            f"MODE: {CURRENT_CAMERA_MODE.upper()}",
+            (20, 520),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (255, 255, 255),
+            2
+        )
+
         # ENCODE FRAME
         ret, buffer = cv2.imencode(
             '.jpg',
@@ -320,7 +445,10 @@ def generate_frames():
     camera.release()
 
 
+# =========================
 # VIDEO FEED
+# =========================
+
 def video_feed(request):
 
     return StreamingHttpResponse(
@@ -329,11 +457,16 @@ def video_feed(request):
     )
 
 
+# =========================
 # WEBSITE LOGS
+# =========================
+
 @login_required
 def logs_view(request):
 
-    accessLogs = AccessLog.objects.order_by('-timestamp')
+    accessLogs = AccessLog.objects.order_by(
+        '-timestamp'
+    )
 
     return render(
         request,
@@ -344,11 +477,16 @@ def logs_view(request):
     )
 
 
+# =========================
 # LOGIN LOGS
+# =========================
+
 @login_required
 def login_attempts_view(request):
 
-    loginLogs = LoginLog.objects.order_by('-timestamp')
+    loginLogs = LoginLog.objects.order_by(
+        '-timestamp'
+    )
 
     return render(
         request,
@@ -359,11 +497,16 @@ def login_attempts_view(request):
     )
 
 
+# =========================
 # CAMERA LOGS
+# =========================
+
 @login_required
 def camera_logs_view(request):
 
-    cameraLogs = CameraLog.objects.order_by('-timestamp')
+    cameraLogs = CameraLog.objects.order_by(
+        '-timestamp'
+    )
 
     return render(
         request,

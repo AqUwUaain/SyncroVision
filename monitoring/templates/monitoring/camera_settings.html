@@ -7,81 +7,117 @@
 
     <title>Camera Settings</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'css/style.css' %}">
 
 </head>
 
 <body>
 
-    <!-- MOBILE MENU BUTTON -->
-    <button id="menu-toggle">
+<button id="menu-toggle">
+    ☰
+</button>
 
-        ☰
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+    <h2>NET-AD</h2>
+
+    <a href="/dashboard/">Dashboard</a>
+
+    <a href="/camera-settings/">
+        Camera Settings
+    </a>
+
+    <a href="/logs/">Website Logs</a>
+
+    <a href="/login-attempts/">
+        Login Attempts
+    </a>
+
+    <a href="/camera-logs/">
+        Camera Logs
+    </a>
+
+    <br>
+
+    <button id="theme-toggle">
+
+        🌙 Toggle Theme
 
     </button>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
+    <br><br>
 
-        <h2>NET-AD</h2>
+    <a href="{% url 'logout' %}">
+        Logout
+    </a>
 
-        <a href="/dashboard/">Dashboard</a>
+</div>
 
-        <a href="/camera-settings/">Camera Settings</a>
+<!-- MAIN -->
+<div class="main">
 
-        <a href="/logs/">Website Logs</a>
+    <div class="topbar">
 
-        <a href="/login-attempts/">Login Attempts</a>
-
-        <a href="/camera-logs/">Camera Logs</a>
-
-        <br>
-
-        <!-- THEME BUTTON -->
-        <button id="theme-toggle">
-
-            🌙 Toggle Theme
-
-        </button>
-
-        <br><br>
-
-        <a href="{% url 'logout' %}">
-
-            Logout
-
-        </a>
+        <h1>Camera Settings</h1>
 
     </div>
 
-    <!-- MAIN -->
-    <div class="main">
+    <div class="logs-section">
 
-        <!-- TOPBAR -->
-        <div class="topbar">
+        <h2>
 
-            <h1>Camera Settings</h1>
+            Camera Source Configuration
 
-            <p id="live-clock"></p>
+        </h2>
 
-        </div>
+        <div class="log-box">
 
-        <!-- CAMERA SETTINGS -->
-        <div class="logs-section">
+            <form method="POST">
 
-            <h2>Select Camera Source</h2>
+                {% csrf_token %}
 
-            <div class="log-box">
+                <!-- CAMERA MODE -->
+                <label>
 
-                <form method="POST">
+                    Camera Mode
 
-                    {% csrf_token %}
+                </label>
+
+                <br><br>
+
+                <select
+                    name="camera_mode"
+                    class="camera-select"
+                    id="camera-mode"
+                >
+
+                    <option value="local">
+
+                        Local Camera
+
+                    </option>
+
+                    <option value="ip">
+
+                        IP Camera / RTSP
+
+                    </option>
+
+                </select>
+
+                <br><br>
+
+                <!-- LOCAL CAMERA -->
+                <div id="local-camera-box">
 
                     <label>
 
-                        Available Cameras
+                        Select Local Camera
 
                     </label>
 
@@ -118,90 +154,141 @@
 
                     </select>
 
+                </div>
+
+                <!-- IP CAMERA -->
+                <div
+                    id="ip-camera-box"
+                    style="display:none;"
+                >
+
+                    <label>
+
+                        IP Camera URL
+
+                    </label>
+
                     <br><br>
 
-                    <button
-                        type="submit"
-                        class="save-camera-btn"
+                    <input
+                        type="text"
+                        name="camera_url"
+                        class="camera-select"
+                        placeholder="rtsp:// or http://"
                     >
 
-                        Save Camera
+                    <br><br>
 
-                    </button>
+                    <small>
 
-                </form>
+                        Example:
+                        rtsp://192.168.1.10:554/stream
 
-            </div>
+                    </small>
+
+                </div>
+
+                <br><br>
+
+                <button
+                    type="submit"
+                    class="save-camera-btn"
+                >
+
+                    Save Camera Configuration
+
+                </button>
+
+            </form>
 
         </div>
 
     </div>
 
-    <!-- LIVE CLOCK -->
-    <script>
+</div>
 
-    function updateClock(){
+<!-- CAMERA MODE SWITCH -->
+<script>
 
-        const now = new Date();
+const cameraMode =
+    document.getElementById("camera-mode");
 
-        document.getElementById("live-clock")
-        .innerHTML = now.toLocaleString();
+const localBox =
+    document.getElementById("local-camera-box");
 
-    }
+const ipBox =
+    document.getElementById("ip-camera-box");
 
-    setInterval(updateClock, 1000);
+cameraMode.addEventListener("change", () => {
 
-    updateClock();
+    if(cameraMode.value === "local"){
 
-    </script>
+        localBox.style.display = "block";
 
-    <!-- THEME TOGGLE -->
-    <script>
-
-    const toggleButton =
-        document.getElementById("theme-toggle");
-
-    if(localStorage.getItem("theme") === "light"){
-
-        document.body.classList.add("light-mode");
+        ipBox.style.display = "none";
 
     }
 
-    toggleButton.addEventListener("click", () => {
+    else{
 
-        document.body.classList.toggle("light-mode");
+        localBox.style.display = "none";
 
-        if(document.body.classList.contains("light-mode")){
+        ipBox.style.display = "block";
 
-            localStorage.setItem("theme", "light");
+    }
 
-        }
-        else{
+});
 
-            localStorage.setItem("theme", "dark");
+</script>
 
-        }
+<!-- THEME -->
+<script>
 
-    });
+const toggleButton =
+    document.getElementById("theme-toggle");
 
-    </script>
+if(localStorage.getItem("theme") === "light"){
 
-    <!-- SIDEBAR TOGGLE -->
-    <script>
+    document.body.classList.add("light-mode");
 
-    const menuToggle =
-        document.getElementById("menu-toggle");
+}
 
-    const sidebar =
-        document.getElementById("sidebar");
+toggleButton.addEventListener("click", () => {
 
-    menuToggle.addEventListener("click", () => {
+    document.body.classList.toggle("light-mode");
 
-        sidebar.classList.toggle("show-sidebar");
+    if(document.body.classList.contains("light-mode")){
 
-    });
+        localStorage.setItem("theme", "light");
 
-    </script>
+    }
+
+    else{
+
+        localStorage.setItem("theme", "dark");
+
+    }
+
+});
+
+</script>
+
+<!-- SIDEBAR -->
+<script>
+
+const menuToggle =
+    document.getElementById("menu-toggle");
+
+const sidebar =
+    document.getElementById("sidebar");
+
+menuToggle.addEventListener("click", () => {
+
+    sidebar.classList.toggle("show-sidebar");
+
+});
+
+</script>
 
 </body>
 
