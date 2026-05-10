@@ -21,14 +21,19 @@
 .light-mode{
 
     --bg-color: #ecf7f6;
-    --sidebar-color: #ffffff;
-    --card-color: #ffffff;
+
+    --sidebar-color: #009f94;
+
+    --card-color: #00bfb3;
+
     --box-color: #f5f5f5;
 
     --text-color: #111827;
+
     --secondary-text: #444;
 
-    --accent-color: #00c9a7;
+    --accent-color: #00bfb3;
+
     background:
     linear-gradient(
         135deg,
@@ -36,6 +41,71 @@
         #dff7f3,
         #ffffff
     );
+
+}
+.light-mode .card{
+
+    color: white;
+
+}
+
+.light-mode .monitor-panel{
+
+    background: #f4f4f4;
+
+    color: #08363a;
+
+}
+
+.light-mode .monitor-panel h2{
+
+    color: #00a99d;
+
+}
+
+.light-mode .log-box{
+
+    background: #f4f4f4;
+
+}
+
+.light-mode .logs-section{
+
+    background: #e7f5f2;
+    border: 1px solid #cdebe6;
+
+}
+
+.light-mode .camera-container{
+
+    border: 2px solid #00bfaf;
+
+}
+
+.light-mode .sidebar a{
+
+    color: white;
+
+}
+
+.light-mode #theme-toggle{
+
+    background: white;
+
+    color: #0fb5ad;
+
+}
+
+.light-mode .clock-panel{
+
+    background: #f4f4f4;
+
+}
+
+.light-mode #live-time{
+
+    color: #00a99d;
+
 }
 
 /* =========================
@@ -198,7 +268,11 @@ body{
 
 .card{
 
-    background: var(--card-color);
+    background: #009f94 !important;
+
+    color: white;
+
+    border: 1px solid rgba(255,255,255,0.15);
 
     padding: 25px;
 
@@ -239,7 +313,7 @@ body{
 
 .monitor-panel{
 
-    background: var(--card-color);
+    background: #009f94 !important;
 
     padding: 25px;
 
@@ -287,7 +361,7 @@ body{
 
 .monitor-item span{
 
-    opacity: 0.8;
+    color: white !important;
 
 }
 
@@ -385,7 +459,7 @@ body{
     padding: 20px;
 
     border-radius: 12px;
-
+    border: 1px solid #bfe7df;
 }
 
 .log-box h3{
@@ -915,5 +989,578 @@ body{
         transform: translateY(0);
 
     }
+
+}
+/* FORCE FIGMA LIGHT MODE */
+
+.light-mode .sidebar{
+    background: #009f94 !important;
+}
+
+.light-mode .card{
+    background: #00bfb3 !important;
+    color: white !important;
+}
+
+.light-mode .monitor-panel{
+    background: #00bfb3 !important;
+    color: white !important;
+}
+
+.light-mode .log-box{
+    background: #009f94 !important;
+    color: white !important;
+}
+
+.light-mode .logs-section{
+    background: #dff3ef !important;
+}
+
+.light-mode .card h3,
+.light-mode .card p,
+.light-mode .monitor-panel h2,
+.light-mode .monitor-panel span,
+.light-mode .monitor-panel strong,
+.light-mode .log-box h3,
+.light-mode .log-box li{
+    color: white !important;
+}
+/* RESTORE DARK MODE */
+
+body:not(.light-mode) .card{
+    background: #0f172a !important;
+    color: white !important;
+}
+
+body:not(.light-mode) .monitor-panel{
+    background: #111827 !important;
+    color: white !important;
+}
+
+body:not(.light-mode) .sidebar{
+    background: #1e293b !important;
+}
+
+body:not(.light-mode){
+    background: #020817 !important;
+    color: white !important;
+}
+/* existing css above */
+
+
+/* LIVE MONITOR FIX */
+.monitor-panel{
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.25);
+}
+
+.light-mode .monitor-panel{
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+/* =========================
+   LOGOUT SECTION
+========================= */
+
+.logout-section{
+
+    margin-top: auto;
+    padding-top: 30px;
+
+}
+
+#logout-btn{
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: #ef4444;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+}
+
+#logout-btn:hover{
+
+    background: #dc2626;
+
+    transform: translateY(-2px);
+
+}
+
+/* =========================
+   LOGOUT MODAL
+========================= */
+
+.logout-modal{
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.45);
+
+    backdrop-filter: blur(4px);
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 9999;
+
+}
+
+.logout-popup{
+
+    width: 90%;
+    max-width: 420px;
+
+    background: #00bfb3;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.25);
+
+    text-align: center;
+
+    animation: popupFade 0.25s ease;
+
+}
+
+.logout-icon{
+
+    font-size: 32px;
+
+    color: white;
+
+    padding: 18px 0;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.3);
+
+}
+
+.logout-popup h2{
+
+    color: white;
+
+    margin-top: 30px;
+
+    font-size: 24px;
+
+}
+
+.logout-popup p{
+
+    color: rgba(255,255,255,0.9);
+
+    margin: 15px 30px 30px;
+
+    font-size: 16px;
+
+}
+
+.logout-actions{
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 20px;
+
+    padding: 20px;
+
+    border-top:
+        1px solid rgba(255,255,255,0.3);
+
+}
+
+.logout-actions button,
+.confirm-logout{
+
+    min-width: 120px;
+
+    padding: 12px 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+}
+
+#cancel-logout{
+
+    background: #0f766e;
+
+    color: white;
+
+}
+
+.confirm-logout{
+
+    background: #ff4d4d;
+
+    color: white;
+
+    padding: 12px 28px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    transition: 0.3s;
+
+    border: none;
+
+    cursor: pointer;
+
+}
+
+.confirm-logout:hover{
+
+    background: #e63939;
+
+    transform: scale(1.03);
+
+}
+
+@keyframes popupFade{
+
+    from{
+
+        opacity: 0;
+        transform: scale(0.9);
+
+    }
+
+    to{
+
+        opacity: 1;
+        transform: scale(1);
+
+    }
+
+}
+/* =========================
+   LIGHT MODE MONITOR TEXT
+========================= */
+
+.light-mode .monitor-panel h2{
+
+    color: white !important;
+
+}
+
+.light-mode .monitor-item span{
+
+    color: white !important;
+
+}
+
+.light-mode .monitor-item strong{
+
+    color: #ffffff;
+
+}
+
+/* STATUS COLORS OVERRIDE */
+
+.light-mode .monitor-item strong.healthy{
+
+    color: #4dff88 !important;
+
+}
+
+.light-mode .monitor-item strong.active-detection{
+
+    color: #ffd54a !important;
+
+}
+
+.light-mode .monitor-item strong.offline{
+
+    color: #ff6b6b !important;
+
+}
+
+/* STATUS COLORS */
+
+.light-mode .healthy{
+
+    color: #4dff88 !important;
+
+}
+
+.light-mode .active-detection{
+
+    color: #ffd54a !important;
+
+}
+/* FORCE STATUS COLORS */
+
+.light-mode .healthy{
+
+    color: #4dff88 !important;
+
+}
+
+.light-mode .active-detection{
+
+    color: #ffd54a !important;
+
+}
+
+.light-mode .offline{
+
+    color: #ff6b6b !important;
+
+}
+/* =========================
+   DARK MODE BACKGROUND
+========================= */
+
+body:not(.light-mode){
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(0,255,200,0.08),
+            transparent 25%
+        ),
+
+        radial-gradient(
+            circle at bottom right,
+            rgba(0,150,255,0.08),
+            transparent 25%
+        ),
+
+        linear-gradient(
+            135deg,
+            #020617,
+            #041229,
+            #020617
+        );
+
+    background-attachment: fixed;
+
+}
+/* =========================
+   LOGIN LINKS
+========================= */
+
+.login-links{
+
+    margin-top: 15px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+}
+
+.login-links a{
+
+    color: white;
+
+    text-decoration: none;
+
+    transition: 0.3s;
+
+}
+
+.login-links a:hover{
+
+    color: #14f1d9;
+
+}
+
+.login-links span{
+
+    color: rgba(255,255,255,0.7);
+
+}
+/* =========================
+   SIDEBAR BRAND
+========================= */
+
+.sidebar-logo{
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+    color: #14f1d9;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 30px;
+
+}
+/* =========================
+   POLICY MODALS
+========================= */
+
+.policy-modal{
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background: rgba(0,0,0,0.75);
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 9999;
+
+    padding: 20px;
+
+}
+
+.policy-popup{
+
+    width: 100%;
+
+    max-width: 700px;
+
+    max-height: 80vh;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #1e293b;
+
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+}
+
+.policy-header{
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 20px;
+
+    background: #00bfb3;
+
+    color: white;
+
+}
+
+.policy-header h2{
+
+    margin: 0;
+
+}
+
+.close-policy{
+
+    background: transparent;
+
+    border: none;
+
+    color: white;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+}
+
+.policy-content{
+
+    padding: 25px;
+
+    overflow-y: auto;
+
+    max-height: 60vh;
+
+    color: white;
+
+    line-height: 1.8;
+
+}
+
+.policy-content h3{
+
+    color: #14f1d9;
+
+    margin-top: 20px;
+
+}
+
+.policy-content p{
+
+    color: rgba(255,255,255,0.85);
+
+}
+
+/* LIGHT MODE */
+
+.light-mode .policy-popup{
+
+    background: white;
+
+}
+
+.light-mode .policy-content{
+
+    color: #111827;
+
+}
+
+.light-mode .policy-content p{
+
+    color: #374151;
 
 }

@@ -1,499 +1,397 @@
-{% load static %}
+{% extends 'monitoring/base.html' %}
 
-<!DOCTYPE html>
-<html>
+{% block title %}
+Dashboard
+{% endblock %}
 
-<head>
+{% block content %}
 
-    <title>NetAD Dashboard</title>
+<!-- TOPBAR -->
+<div class="topbar">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div>
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <h1>Security Monitoring Dashboard</h1>
 
-</head>
-
-<body>
-
-    <!-- MOBILE MENU BUTTON -->
-    <button id="menu-toggle">
-        ☰
-    </button>
-
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-
-        <h2>NET-AD</h2>
-
-        <a href="/dashboard/">Dashboard</a>
-
-        <a href="/camera-settings/">Camera Settings</a>
-
-        <a href="/logs/">Website Logs</a>
-
-        <a href="/login-attempts/">Login Attempts</a>
-
-        <a href="/camera-logs/">Camera Logs</a>
-
-        <br>
-
-        <button id="theme-toggle">
-            🌙 Toggle Theme
-        </button>
-
-        <br><br>
-
-        <a href="{% url 'logout' %}">
-            Logout
-        </a>
+        <p>
+            Welcome back,
+            {{ request.user.username }}
+        </p>
 
     </div>
-
-    <!-- MAIN -->
-    <div class="main">
-
-        <!-- TOPBAR -->
-        <div class="topbar">
-
-            <div>
-
-                <h1>Security Monitoring Dashboard</h1>
-
-                <p>
-                    Welcome back,
-                    {{ request.user.username }}
-                </p>
-
-            </div>
-
-            <!-- CLOCK -->
-            <div class="clock-panel">
-
-                <div id="live-time">
-                    00:00:00
-                </div>
-
-                <div id="live-date">
-                    Loading date...
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- TOP DASHBOARD -->
-        <div class="top-dashboard">
-
-            <div class="cards">
-
-                <!-- SYSTEM STATUS -->
-                <div class="card">
-
-                    <h3>System Status</h3>
-
-                    <p>🟢 Online</p>
-
-                </div>
-
-                <!-- CAMERA STATUS -->
-                <div class="card">
-
-                    <h3>Camera Status</h3>
-
-                    <p>🟢 Connected</p>
-
-                </div>
-
-                <!-- DETECTION STATUS -->
-                <div class="card">
-
-                    <h3>Detection Status</h3>
-
-                    <p id="detection-card-status">
-
-                        {% if detection_status == "ACTIVE" %}
-
-                            🔴 Active
-
-                        {% elif detection_status == "MOTION" %}
-
-                            🟡 Motion
-
-                        {% else %}
-
-                            🟢 Idle
-
-                        {% endif %}
-
-                    </p>
-
-                </div>
-
-                <!-- LIVE MONITOR -->
-                <div class="monitor-panel">
-
-                    <h2>
-                        LIVE MONITOR
-                    </h2>
-
-                    <div class="monitor-item">
-
-                        <span>ACTIVE CAMERA</span>
-
-                        <strong>
-                            {{ camera_source }}
-                        </strong>
-
-                    </div>
-
-                    <div class="monitor-item">
-
-                        <span>CAMERA TYPE</span>
-
-                        <strong>
-                            {{ camera_mode|upper }}
-                        </strong>
-
-                    </div>
-
-                    <div class="monitor-item">
-
-                        <span>STREAM HEALTH</span>
-
-                        <strong class="healthy">
-
-                            {{ stream_status }}
-
-                        </strong>
-
-                    </div>
-
-                    <div class="monitor-item">
-
-                        <span>FPS</span>
-
-                        <strong id="fps-counter">
-
-                            {{ current_fps }} FPS
-
-                        </strong>
-
-                    </div>
-
-                    <div class="monitor-item">
-
-                        <span>LATENCY</span>
-
-                        <strong>
-                            32 ms
-                        </strong>
-
-                    </div>
-
-                    <div class="monitor-item">
-
-                        <span>DETECTION</span>
-
-                        <strong class="active-detection">
-
-                            {{ detection_status }}
-
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CAMERA -->
-        <div class="camera-section">
-
-            <h2>
-                Live Camera Feed
-            </h2>
-
-            <div class="camera-container">
-
-                <img
-                    src="{% url 'video_feed' %}"
-                    class="camera-feed"
-                >
-
-            </div>
-
-        </div>
-
-        <!-- LOGS -->
-        <div class="logs-section">
-
-            <h2>
-                Recent Activity
-            </h2>
-
-            <div class="logs-grid">
-
-                <!-- WEBSITE LOGS -->
-                <div class="log-box">
-
-                    <h3>
-                        Website Logs
-                        ({{ accessLogs|length }})
-                    </h3>
-
-                    <ul>
-
-                        {% for log in accessLogs %}
-
-                        <li>
-
-                            {{ log.user }}
-                            accessed dashboard -
-
-                            {{ log.timestamp }}
-
-                        </li>
-
-                        {% endfor %}
-
-                    </ul>
-
-                </div>
-
-                <!-- LOGIN LOGS -->
-                <div class="log-box">
-
-                    <h3>
-                        Login Attempts
-                        ({{ loginLogs|length }})
-                    </h3>
-
-                    <ul>
-
-                        {% for log in loginLogs %}
-
-                        <li>
-
-                            {{ log.username }} -
-                            {{ log.status }} -
-                            {{ log.timestamp }}
-
-                        </li>
-
-                        {% endfor %}
-
-                    </ul>
-
-                </div>
-
-                <!-- CAMERA LOGS -->
-                <div class="log-box camera-log-box">
-
-                    <h3>
-                        Camera Logs
-                        ({{ cameraLogs|length }})
-                    </h3>
-
-                    <ul>
-
-                        {% for log in cameraLogs %}
-
-                        <li>
-
-                            {{ log.event }} -
-                            {{ log.timestamp }}
-
-                        </li>
-
-                        {% endfor %}
-
-                    </ul>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- LIVE DASHBOARD REFRESH -->
-    <script>
-
-    async function refreshDashboardData(){
-
-        try{
-
-            const response =
-                await fetch(window.location.href);
-
-            const html =
-                await response.text();
-
-            const parser =
-                new DOMParser();
-
-            const doc =
-                parser.parseFromString(
-                    html,
-                    "text/html"
-                );
-
-            // DETECTION STATUS CARD
-            const newDetectionCard =
-                doc.querySelector(
-                    "#detection-card-status"
-                );
-
-            document.querySelector(
-                "#detection-card-status"
-            ).innerHTML =
-                newDetectionCard.innerHTML;
-
-            // FPS
-            const newFPS =
-                doc.querySelector(
-                    "#fps-counter"
-                );
-
-            document.querySelector(
-                "#fps-counter"
-            ).innerHTML =
-                newFPS.innerHTML;
-
-            // MONITOR PANEL
-            const newMonitor =
-                doc.querySelector(
-                    ".monitor-panel"
-                );
-
-            document.querySelector(
-                ".monitor-panel"
-            ).innerHTML =
-                newMonitor.innerHTML;
-
-            // LOGS
-            const newLogs =
-                doc.querySelector(
-                    ".logs-section"
-                );
-
-            document.querySelector(
-                ".logs-section"
-            ).innerHTML =
-                newLogs.innerHTML;
-
-        }
-
-        catch(error){
-
-            console.log(
-                "Dashboard refresh failed"
-            );
-
-        }
-
-    }
-
-    setInterval(
-        refreshDashboardData,
-        5000
-    );
-
-    </script>
 
     <!-- CLOCK -->
-    <script>
+    <div class="clock-panel">
 
-    function updateClock(){
+        <div id="live-time">
+            00:00:00
+        </div>
 
-        const now = new Date();
+        <div id="live-date">
+            Loading date...
+        </div>
 
-        const time =
-            now.toLocaleTimeString(
-                'en-PH',
-                {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                }
+    </div>
+
+</div>
+
+<!-- TOP DASHBOARD -->
+<div class="top-dashboard">
+
+    <div class="cards">
+
+        <!-- SYSTEM STATUS -->
+        <div class="card">
+
+            <h3>System Status</h3>
+
+            <p>🟢 Online</p>
+
+        </div>
+
+        <!-- CAMERA STATUS -->
+        <div class="card">
+
+            <h3>Camera Status</h3>
+
+            <p>🟢 Connected</p>
+
+        </div>
+
+        <!-- DETECTION STATUS -->
+        <div class="card">
+
+            <h3>Detection Status</h3>
+
+            <p id="detection-card-status">
+
+                {% if detection_status == "ACTIVE" %}
+
+                    🔴 Active
+
+                {% elif detection_status == "MOTION" %}
+
+                    🟡 Motion
+
+                {% else %}
+
+                    🟢 Idle
+
+                {% endif %}
+
+            </p>
+
+        </div>
+
+        <!-- LIVE MONITOR -->
+        <div class="monitor-panel">
+
+            <h2>
+                LIVE MONITOR
+            </h2>
+
+            <div class="monitor-item">
+
+                <span>ACTIVE CAMERA</span>
+
+                <strong>
+                    {{ camera_source }}
+                </strong>
+
+            </div>
+
+            <div class="monitor-item">
+
+                <span>CAMERA TYPE</span>
+
+                <strong>
+                    {{ camera_mode|upper }}
+                </strong>
+
+            </div>
+
+            <div class="monitor-item">
+
+                <span>STREAM HEALTH</span>
+
+                <strong class="healthy">
+
+                    {{ stream_status }}
+
+                </strong>
+
+            </div>
+
+            <div class="monitor-item">
+
+                <span>FPS</span>
+
+                <strong id="fps-counter">
+
+                    {{ current_fps }} FPS
+
+                </strong>
+
+            </div>
+
+            <div class="monitor-item">
+
+                <span>LATENCY</span>
+
+                <strong>
+                    32 ms
+                </strong>
+
+            </div>
+
+            <div class="monitor-item">
+
+                <span>DETECTION</span>
+
+                <strong class="active-detection">
+
+                    {{ detection_status }}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CAMERA -->
+<div class="camera-section">
+
+    <h2>
+        Live Camera Feed
+    </h2>
+
+    <div class="camera-container">
+
+        <img
+            src="{% url 'video_feed' %}"
+            class="camera-feed"
+        >
+
+    </div>
+
+</div>
+
+<!-- LOGS -->
+<div class="logs-section">
+
+    <h2>
+        Recent Activity
+    </h2>
+
+    <div class="logs-grid">
+
+        <!-- WEBSITE LOGS -->
+        <div class="log-box">
+
+            <h3>
+                Website Logs
+                ({{ accessLogs|length }})
+            </h3>
+
+            <ul>
+
+                {% for log in accessLogs %}
+
+                <li>
+
+                    {{ log.user }}
+                    accessed dashboard -
+
+                    {{ log.timestamp }}
+
+                </li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+        <!-- LOGIN LOGS -->
+        <div class="log-box">
+
+            <h3>
+                Login Attempts
+                ({{ loginLogs|length }})
+            </h3>
+
+            <ul>
+
+                {% for log in loginLogs %}
+
+                <li>
+
+                    {{ log.username }} -
+                    {{ log.status }} -
+                    {{ log.timestamp }}
+
+                </li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+        <!-- CAMERA LOGS -->
+        <div class="log-box camera-log-box">
+
+            <h3>
+                Camera Logs
+                ({{ cameraLogs|length }})
+            </h3>
+
+            <ul>
+
+                {% for log in cameraLogs %}
+
+                <li>
+
+                    {{ log.event }} -
+                    {{ log.timestamp }}
+
+                </li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- LIVE DASHBOARD REFRESH -->
+<script>
+
+async function refreshDashboardData(){
+
+    try{
+
+        const response =
+            await fetch(window.location.href);
+
+        const html =
+            await response.text();
+
+        const parser =
+            new DOMParser();
+
+        const doc =
+            parser.parseFromString(
+                html,
+                "text/html"
             );
 
-        const date =
-            now.toLocaleDateString(
-                'en-PH',
-                {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                }
+        const newDetectionCard =
+            doc.querySelector(
+                "#detection-card-status"
             );
 
-        document.getElementById("live-time")
-        .innerHTML = time;
+        document.querySelector(
+            "#detection-card-status"
+        ).innerHTML =
+            newDetectionCard.innerHTML;
 
-        document.getElementById("live-date")
-        .innerHTML = date;
+        const newFPS =
+            doc.querySelector(
+                "#fps-counter"
+            );
+
+        document.querySelector(
+            "#fps-counter"
+        ).innerHTML =
+            newFPS.innerHTML;
+
+        const newMonitor =
+            doc.querySelector(
+                ".monitor-panel"
+            );
+
+        document.querySelector(
+            ".monitor-panel"
+        ).innerHTML =
+            newMonitor.innerHTML;
+
+        const newLogs =
+            doc.querySelector(
+                ".logs-section"
+            );
+
+        document.querySelector(
+            ".logs-section"
+        ).innerHTML =
+            newLogs.innerHTML;
 
     }
 
-    setInterval(updateClock, 1000);
+    catch(error){
 
-    updateClock();
-
-    </script>
-
-    <!-- THEME -->
-    <script>
-
-    const toggleButton =
-        document.getElementById("theme-toggle");
-
-    if(localStorage.getItem("theme") === "light"){
-
-        document.body.classList.add("light-mode");
+        console.log(
+            "Dashboard refresh failed"
+        );
 
     }
 
-    toggleButton.addEventListener("click", () => {
+}
 
-        document.body.classList.toggle("light-mode");
+setInterval(
+    refreshDashboardData,
+    5000
+);
 
-        if(document.body.classList.contains("light-mode")){
+</script>
 
-            localStorage.setItem("theme", "light");
+<!-- CLOCK -->
+<script>
 
-        }
-        else{
+function updateClock(){
 
-            localStorage.setItem("theme", "dark");
+    const now = new Date();
 
-        }
+    const time =
+        now.toLocaleTimeString(
+            'en-PH',
+            {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }
+        );
 
-    });
+    const date =
+        now.toLocaleDateString(
+            'en-PH',
+            {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }
+        );
 
-    </script>
+    document.getElementById("live-time")
+    .innerHTML = time;
 
-    <!-- SIDEBAR -->
-    <script>
+    document.getElementById("live-date")
+    .innerHTML = date;
 
-    const menuToggle =
-        document.getElementById("menu-toggle");
+}
 
-    const sidebar =
-        document.getElementById("sidebar");
+setInterval(updateClock, 1000);
 
-    menuToggle.addEventListener("click", () => {
+updateClock();
 
-        sidebar.classList.toggle("show-sidebar");
+</script>
 
-    });
-
-    </script>
-
-</body>
-
-</html>
+{% endblock %}

@@ -33,7 +33,11 @@
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
 
-        <h2>NET-AD</h2>
+        <h2 class="sidebar-logo">
+
+            SyncroVision
+
+        </h2>
 
         <a href="/dashboard/">
             Dashboard
@@ -57,15 +61,67 @@
 
         <br>
 
-        <button id="theme-toggle">
+        <!-- THEME -->
+        <button
+            id="theme-toggle"
+            type="button"
+        >
             🌙 Toggle Theme
         </button>
 
-        <br><br>
+        <!-- PUSH LOGOUT TO BOTTOM -->
+        <div class="logout-section">
 
-        <a href="{% url 'logout' %}">
-            Logout
-        </a>
+            <button
+                id="logout-btn"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- LOGOUT MODAL -->
+    <div
+        id="logout-modal"
+        class="logout-modal"
+    >
+
+        <div class="logout-popup">
+
+            <div class="logout-icon">
+                !
+            </div>
+
+            <h2>
+                Are you sure you want to log out?
+            </h2>
+
+            <p>
+                You can continue working or log in later.
+            </p>
+
+            <div class="logout-actions">
+
+                <button
+                    id="cancel-logout"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <a
+                    href="{% url 'logout' %}"
+                    class="confirm-logout"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -80,29 +136,33 @@
     <!-- THEME -->
     <script>
 
-    const toggleButton =
-        document.getElementById("theme-toggle");
+    document.addEventListener("DOMContentLoaded", () => {
 
-    if(localStorage.getItem("theme") === "light"){
+        const toggleButton =
+            document.getElementById("theme-toggle");
 
-        document.body.classList.add("light-mode");
+        if(localStorage.getItem("theme") === "light"){
 
-    }
-
-    toggleButton.addEventListener("click", () => {
-
-        document.body.classList.toggle("light-mode");
-
-        if(document.body.classList.contains("light-mode")){
-
-            localStorage.setItem("theme", "light");
+            document.body.classList.add("light-mode");
 
         }
-        else{
 
-            localStorage.setItem("theme", "dark");
+        toggleButton.addEventListener("click", () => {
 
-        }
+            document.body.classList.toggle("light-mode");
+
+            if(document.body.classList.contains("light-mode")){
+
+                localStorage.setItem("theme", "light");
+
+            }
+            else{
+
+                localStorage.setItem("theme", "dark");
+
+            }
+
+        });
 
     });
 
@@ -111,15 +171,73 @@
     <!-- SIDEBAR -->
     <script>
 
-    const menuToggle =
-        document.getElementById("menu-toggle");
+    document.addEventListener("DOMContentLoaded", () => {
 
-    const sidebar =
-        document.getElementById("sidebar");
+        const menuToggle =
+            document.getElementById("menu-toggle");
 
-    menuToggle.addEventListener("click", () => {
+        const sidebar =
+            document.getElementById("sidebar");
 
-        sidebar.classList.toggle("show-sidebar");
+        if(menuToggle){
+
+            menuToggle.addEventListener("click", () => {
+
+                sidebar.classList.toggle("show-sidebar");
+
+            });
+
+        }
+
+    });
+
+    </script>
+
+    <!-- LOGOUT POPUP -->
+    <script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const logoutBtn =
+            document.getElementById("logout-btn");
+
+        const logoutModal =
+            document.getElementById("logout-modal");
+
+        const cancelLogout =
+            document.getElementById("cancel-logout");
+
+        if(logoutBtn){
+
+            logoutBtn.addEventListener("click", (e) => {
+
+                e.preventDefault();
+
+                logoutModal.style.display = "flex";
+
+            });
+
+        }
+
+        if(cancelLogout){
+
+            cancelLogout.addEventListener("click", () => {
+
+                logoutModal.style.display = "none";
+
+            });
+
+        }
+
+        window.addEventListener("click", (e) => {
+
+            if(e.target === logoutModal){
+
+                logoutModal.style.display = "none";
+
+            }
+
+        });
 
     });
 

@@ -5,11 +5,30 @@
 
 <head>
 
-    <title>NET-AD Login</title>
+    <title>
+        SyncroVision Login
+    </title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- LOAD THEME BEFORE PAGE RENDERS -->
+    <script>
+
+    if(localStorage.getItem("theme") === "light"){
+
+        document.documentElement.classList.add("light-mode");
+
+    }
+
+    </script>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/style.css' %}"
+    >
 
 </head>
 
@@ -22,19 +41,22 @@
 
     </button>
 
+    <!-- LOGIN -->
     <div class="login-container">
 
         <div class="login-box">
 
-            <h1>NET-AD</h1>
+            <h1>
+                SyncroVision
+            </h1>
 
             <p class="login-subtitle">
 
-                Security Monitoring System
+                Intelligent Camera Monitoring System
 
             </p>
 
-            <!-- ERROR MESSAGE -->
+            <!-- ERROR -->
             {% if error_message %}
 
             <div class="error-box">
@@ -45,6 +67,7 @@
 
             {% endif %}
 
+            <!-- LOGIN FORM -->
             <form method="POST">
 
                 {% csrf_token %}
@@ -71,6 +94,212 @@
 
             </form>
 
+            <!-- POLICY LINKS -->
+            <div class="login-links">
+
+                <button
+                    type="button"
+                    id="privacy-btn"
+                    class="policy-btn"
+                >
+                    Privacy Policy
+                </button>
+
+                <span>
+                    •
+                </span>
+
+                <button
+                    type="button"
+                    id="terms-btn"
+                    class="policy-btn"
+                >
+                    Terms of Use
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PRIVACY POLICY MODAL -->
+    <div id="privacy-modal" class="policy-modal">
+
+        <div class="policy-popup">
+
+            <div class="policy-header">
+
+                <h2>
+                    Privacy Policy
+                </h2>
+
+                <button
+                    class="close-policy"
+                    id="close-privacy"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div class="policy-content">
+
+                <h3>
+                    Republic Act No. 10173
+                </h3>
+
+                <p>
+                    This system complies with the
+                    Data Privacy Act of 2012
+                    of the Philippines.
+                </p>
+
+                <h3>
+                    Information Collection
+                </h3>
+
+                <p>
+                    SyncroVision may collect and
+                    process login activity,
+                    camera monitoring records,
+                    timestamps, IP addresses,
+                    and system logs for security
+                    and monitoring purposes.
+                </p>
+
+                <h3>
+                    Data Protection
+                </h3>
+
+                <p>
+                    Personal information is secured
+                    using appropriate administrative,
+                    physical, and technical safeguards
+                    to prevent unauthorized access,
+                    disclosure, alteration,
+                    or destruction.
+                </p>
+
+                <h3>
+                    User Rights
+                </h3>
+
+                <p>
+                    Users have the right to access,
+                    correct, and request deletion
+                    of personal information in
+                    accordance with Republic Act
+                    No. 10173.
+                </p>
+
+                <h3>
+                    Monitoring Notice
+                </h3>
+
+                <p>
+                    Activities performed within
+                    this system may be logged,
+                    monitored, and reviewed for
+                    cybersecurity, authentication,
+                    and system integrity.
+                </p>
+
+                <h3>
+                    Compliance
+                </h3>
+
+                <p>
+                    By using SyncroVision,
+                    users acknowledge and consent
+                    to the collection and processing
+                    of data necessary for
+                    security monitoring operations.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TERMS MODAL -->
+    <div id="terms-modal" class="policy-modal">
+
+        <div class="policy-popup">
+
+            <div class="policy-header">
+
+                <h2>
+                    Terms of Use
+                </h2>
+
+                <button
+                    class="close-policy"
+                    id="close-terms"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div class="policy-content">
+
+                <h3>
+                    Authorized Access
+                </h3>
+
+                <p>
+                    This system is intended only
+                    for authorized users.
+                    Unauthorized access, misuse,
+                    or tampering is prohibited.
+                </p>
+
+                <h3>
+                    Monitoring Activity
+                </h3>
+
+                <p>
+                    User activity, login attempts,
+                    and monitoring events may be
+                    logged and reviewed for
+                    security purposes.
+                </p>
+
+                <h3>
+                    Account Responsibility
+                </h3>
+
+                <p>
+                    Users are responsible for
+                    maintaining the confidentiality
+                    of their account credentials.
+                </p>
+
+                <h3>
+                    Restrictions
+                </h3>
+
+                <p>
+                    Users must not attempt to disrupt,
+                    exploit, reverse engineer,
+                    or interfere with
+                    SyncroVision services.
+                </p>
+
+                <h3>
+                    Acceptance
+                </h3>
+
+                <p>
+                    By accessing this system,
+                    users agree to comply with
+                    these Terms of Use.
+                </p>
+
+            </div>
+
         </div>
 
     </div>
@@ -81,18 +310,12 @@
     const loginThemeButton =
         document.getElementById("login-theme-toggle");
 
-    // LOAD SAVED THEME
-    if(localStorage.getItem("theme") === "light"){
-
-        document.body.classList.add("light-mode");
-
-    }
-
     loginThemeButton.addEventListener("click", () => {
 
         document.body.classList.toggle("light-mode");
 
-        // SAVE THEME
+        document.documentElement.classList.toggle("light-mode");
+
         if(document.body.classList.contains("light-mode")){
 
             localStorage.setItem("theme", "light");
@@ -101,6 +324,69 @@
         else{
 
             localStorage.setItem("theme", "dark");
+
+        }
+
+    });
+
+    </script>
+
+    <!-- POLICY POPUPS -->
+    <script>
+
+    const privacyBtn =
+        document.getElementById("privacy-btn");
+
+    const termsBtn =
+        document.getElementById("terms-btn");
+
+    const privacyModal =
+        document.getElementById("privacy-modal");
+
+    const termsModal =
+        document.getElementById("terms-modal");
+
+    const closePrivacy =
+        document.getElementById("close-privacy");
+
+    const closeTerms =
+        document.getElementById("close-terms");
+
+    privacyBtn.addEventListener("click", () => {
+
+        privacyModal.style.display = "flex";
+
+    });
+
+    termsBtn.addEventListener("click", () => {
+
+        termsModal.style.display = "flex";
+
+    });
+
+    closePrivacy.addEventListener("click", () => {
+
+        privacyModal.style.display = "none";
+
+    });
+
+    closeTerms.addEventListener("click", () => {
+
+        termsModal.style.display = "none";
+
+    });
+
+    window.addEventListener("click", (e) => {
+
+        if(e.target === privacyModal){
+
+            privacyModal.style.display = "none";
+
+        }
+
+        if(e.target === termsModal){
+
+            termsModal.style.display = "none";
 
         }
 
