@@ -384,32 +384,118 @@ def generate_frames():
     # MAIN LOOP
     # =========================
 
+    # =========================
+    # STREAM WATCHDOG
+    # =========================
+
+    reconnect_attempts = 0
+
     while True:
 
         success, frame = camera.read()
 
+        # =========================
         # CAMERA FAILED
-        if not success:
+        # =========================
+
+        if not success or frame is None:
 
             print("FRAME READ FAILED")
 
             CURRENT_STREAM_STATUS = "Offline"
 
-            black_frame = (
-                np.zeros(
-                    (550, 900, 3),
-                    dtype=np.uint8
+            reconnect_attempts += 1
+
+            print(
+                f"RECONNECT ATTEMPT: "
+                f"{reconnect_attempts}"
+            )
+
+            # RELEASE DEAD CAMERA
+            try:
+                camera.release()
+            except:
+                pass
+
+            # WAIT BEFORE RETRY
+            time.sleep(2)
+
+            # =========================
+            # RECONNECT CAMERA
+            # =========================
+
+            try:
+
+                if CURRENT_CAMERA_MODE == "local":
+
+                    camera = cv2.VideoCapture(
+                        CURRENT_CAMERA_INDEX
+                    )
+
+                else:
+
+                    os.environ[
+                        "OPENCV_FFMPEG_CAPTURE_OPTIONS"
+                    ] = "rtsp_transport;tcp"
+
+                    camera = cv2.VideoCapture(
+                        CURRENT_CAMERA_URL,
+                        cv2.CAP_FFMPEG
+                    )
+
+                    # FALLBACK
+                    if not camera.isOpened():
+
+                        camera = cv2.VideoCapture(
+                            CURRENT_CAMERA_URL
+                        )
+
+                print(
+                    "RECONNECT STATUS:",
+                    camera.isOpened()
                 )
+
+            except Exception as e:
+
+                print("RECONNECT ERROR:", e)
+
+            # =========================
+            # SHOW OFFLINE SCREEN
+            # =========================
+
+            black_frame = np.zeros(
+                (550, 900, 3),
+                dtype=np.uint8
             )
 
             cv2.putText(
                 black_frame,
-                "NO VIDEO FRAME",
-                (250, 250),
+                "CAMERA OFFLINE",
+                (220, 220),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                1.2,
+                1.4,
                 (0, 0, 255),
-                3
+                4
+            )
+
+            cv2.putText(
+                black_frame,
+                "ATTEMPTING RECONNECT...",
+                (180, 300),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.9,
+                (255, 255, 255),
+                2
+            )
+
+            cv2.putText(
+                black_frame,
+                f"ATTEMPT #{reconnect_attempts}",
+                (300, 360),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (0, 255, 255),
+                2
             )
 
             ret, buffer = cv2.imencode(
@@ -427,6 +513,12 @@ def generate_frames():
             )
 
             continue
+
+        # =========================
+        # CAMERA RECOVERED
+        # =========================
+
+        reconnect_attempts = 0
 
         CURRENT_STREAM_STATUS = "Excellent"
 
