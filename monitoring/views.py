@@ -272,6 +272,16 @@ def generate_frames():
             CURRENT_CAMERA_URL
         )
 
+        if not camera.isOpened():
+
+            CURRENT_STREAM_STATUS = "Offline"
+
+            CURRENT_CAMERA_STATUS = "Disconnected"
+
+            while True:
+
+                time.sleep(1)
+
     # CAMERA SETTINGS
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
