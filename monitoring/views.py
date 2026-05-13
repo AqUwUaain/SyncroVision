@@ -284,6 +284,8 @@ def generate_frames():
         print("OPENING RTSP CAMERA")
         print("URL:", CURRENT_CAMERA_URL)
 
+        os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
+
         # FFMPEG MODE
         camera = cv2.VideoCapture(
             CURRENT_CAMERA_URL,
