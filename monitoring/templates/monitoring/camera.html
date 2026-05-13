@@ -54,7 +54,11 @@ Dashboard
 
             <h3>Camera Status</h3>
 
-            <p>🟢 Connected</p>
+            <p id="camera-status">
+
+                🔴 Not Connected
+
+            </p>
 
         </div>
 
@@ -65,19 +69,7 @@ Dashboard
 
             <p id="detection-card-status">
 
-                {% if detection_status == "ACTIVE" %}
-
-                    🔴 Active
-
-                {% elif detection_status == "MOTION" %}
-
-                    🟡 Motion
-
-                {% else %}
-
-                    🟢 Idle
-
-                {% endif %}
+                🟢 Idle
 
             </p>
 
@@ -94,8 +86,10 @@ Dashboard
 
                 <span>ACTIVE CAMERA</span>
 
-                <strong>
-                    {{ camera_source }}
+                <strong id="active-camera">
+
+                    Browser Webcam
+
                 </strong>
 
             </div>
@@ -105,7 +99,9 @@ Dashboard
                 <span>CAMERA TYPE</span>
 
                 <strong>
-                    {{ camera_mode|upper }}
+
+                    LOCAL DEVICE
+
                 </strong>
 
             </div>
@@ -114,9 +110,12 @@ Dashboard
 
                 <span>STREAM HEALTH</span>
 
-                <strong class="healthy">
+                <strong
+                    class="healthy"
+                    id="stream-health"
+                >
 
-                    {{ stream_status }}
+                    Offline
 
                 </strong>
 
@@ -128,7 +127,7 @@ Dashboard
 
                 <strong id="fps-counter">
 
-                    {{ current_fps }} FPS
+                    -- FPS
 
                 </strong>
 
@@ -139,7 +138,9 @@ Dashboard
                 <span>LATENCY</span>
 
                 <strong>
+
                     32 ms
+
                 </strong>
 
             </div>
@@ -148,9 +149,12 @@ Dashboard
 
                 <span>DETECTION</span>
 
-                <strong class="active-detection">
+                <strong
+                    class="active-detection"
+                    id="detection-status"
+                >
 
-                    {{ detection_status }}
+                    IDLE
 
                 </strong>
 
@@ -171,10 +175,31 @@ Dashboard
 
     <div class="camera-container">
 
-        <img
-            src="{% url 'video_feed' %}"
+        <!-- LIVE WEBCAM -->
+        <video
+            id="webcam"
+            autoplay
+            playsinline
+            muted
             class="camera-feed"
-        >
+        ></video>
+
+        <!-- BUTTONS -->
+        <div class="camera-buttons">
+
+            <button id="start-camera">
+
+                🎥 Use Webcam
+
+            </button>
+
+            <button id="stop-camera">
+
+                ⛔ Stop Camera
+
+            </button>
+
+        </div>
 
     </div>
 
@@ -271,84 +296,90 @@ Dashboard
 
 </div>
 
-<!-- LIVE DASHBOARD REFRESH -->
+<!-- WEBCAM SCRIPT -->
 <script>
 
-async function refreshDashboardData(){
+const video =
+    document.getElementById("webcam");
+
+const startButton =
+    document.getElementById("start-camera");
+
+const stopButton =
+    document.getElementById("stop-camera");
+
+const cameraStatus =
+    document.getElementById("camera-status");
+
+const streamHealth =
+    document.getElementById("stream-health");
+
+const detectionStatus =
+    document.getElementById("detection-status");
+
+let currentStream = null;
+
+startButton.addEventListener("click", async () => {
 
     try{
 
-        const response =
-            await fetch(window.location.href);
+        const stream =
+            await navigator.mediaDevices.getUserMedia({
 
-        const html =
-            await response.text();
+                video: true,
+                audio: false
 
-        const parser =
-            new DOMParser();
+            });
 
-        const doc =
-            parser.parseFromString(
-                html,
-                "text/html"
-            );
+        currentStream = stream;
 
-        const newDetectionCard =
-            doc.querySelector(
-                "#detection-card-status"
-            );
+        video.srcObject = stream;
 
-        document.querySelector(
-            "#detection-card-status"
-        ).innerHTML =
-            newDetectionCard.innerHTML;
+        cameraStatus.innerHTML =
+            "🟢 Connected";
 
-        const newFPS =
-            doc.querySelector(
-                "#fps-counter"
-            );
+        streamHealth.innerHTML =
+            "Excellent";
 
-        document.querySelector(
-            "#fps-counter"
-        ).innerHTML =
-            newFPS.innerHTML;
-
-        const newMonitor =
-            doc.querySelector(
-                ".monitor-panel"
-            );
-
-        document.querySelector(
-            ".monitor-panel"
-        ).innerHTML =
-            newMonitor.innerHTML;
-
-        const newLogs =
-            doc.querySelector(
-                ".logs-section"
-            );
-
-        document.querySelector(
-            ".logs-section"
-        ).innerHTML =
-            newLogs.innerHTML;
+        detectionStatus.innerHTML =
+            "ACTIVE";
 
     }
 
     catch(error){
 
-        console.log(
-            "Dashboard refresh failed"
+        alert(
+            "Camera access denied or unavailable."
         );
+
+        console.error(error);
 
     }
 
-}
+});
 
-setInterval(
-    refreshDashboardData,
-    5000
-);
+stopButton.addEventListener("click", () => {
+
+    if(currentStream){
+
+        currentStream
+            .getTracks()
+            .forEach(track => track.stop());
+
+        video.srcObject = null;
+
+        cameraStatus.innerHTML =
+            "🔴 Not Connected";
+
+        streamHealth.innerHTML =
+            "Offline";
+
+        detectionStatus.innerHTML =
+            "IDLE";
+
+    }
+
+});
 
 </script>
 
