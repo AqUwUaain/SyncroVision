@@ -1654,3 +1654,234 @@ body:not(.light-mode){
     opacity: 0.92;
 
 }
+/* =================================
+   ADVANCED CAMERA SYSTEM
+================================= */
+
+.camera-container{
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+.camera-wrapper{
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    overflow: hidden;
+
+}
+
+.camera-feed{
+
+    transition:
+        transform 0.25s ease,
+        opacity 0.3s ease;
+
+}
+
+/* LOADING OVERLAY */
+
+#camera-loading{
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,0.82);
+
+    z-index: 50;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    color: white;
+
+    gap: 15px;
+
+}
+
+/* OFFLINE OVERLAY */
+
+#camera-offline{
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,0.88);
+
+    z-index: 51;
+
+    display: none;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    color: white;
+
+    gap: 10px;
+
+    text-align: center;
+
+}
+
+#camera-offline h1{
+
+    color: #ff4d4d;
+
+    font-size: 42px;
+
+}
+
+/* SPINNER */
+
+.spinner{
+
+    width: 70px;
+
+    height: 70px;
+
+    border:
+        6px solid rgba(255,255,255,0.15);
+
+    border-top:
+        6px solid #00ffe0;
+
+    border-radius: 50%;
+
+    animation:
+        spin 1s linear infinite;
+
+}
+
+@keyframes spin{
+
+    from{
+
+        transform: rotate(0deg);
+
+    }
+
+    to{
+
+        transform: rotate(360deg);
+
+    }
+
+}
+
+/* FULLSCREEN BUTTON */
+
+#fullscreen-btn{
+
+    position: absolute;
+
+    top: 20px;
+
+    right: 20px;
+
+    z-index: 60;
+
+    padding: 12px 18px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: rgba(0,0,0,0.65);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+
+}
+
+#fullscreen-btn:hover{
+
+    background: #00e5cc;
+
+    color: black;
+
+}
+
+/* ZOOM CONTROLS */
+
+.zoom-controls{
+
+    position: absolute;
+
+    bottom: 20px;
+
+    right: 20px;
+
+    z-index: 60;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    width: 220px;
+
+    justify-content: flex-end;
+
+}
+
+.zoom-controls button{
+
+    width: 48px;
+
+    height: 48px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        rgba(0,0,0,0.72);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    transition: 0.25s;
+
+}
+
+.zoom-controls button:hover{
+
+    background: #00e5cc;
+
+    color: black;
+
+    transform: scale(1.08);
+
+}

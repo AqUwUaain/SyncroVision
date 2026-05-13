@@ -127,7 +127,7 @@ Dashboard
 
                 <strong id="fps-counter">
 
-                    LIVE
+                    0 FPS
 
                 </strong>
 
@@ -176,41 +176,74 @@ Dashboard
     <!-- CAMERA FRAME -->
     <div class="camera-container">
 
-        <!-- BROWSER CAMERA -->
-        <video
-            id="browser-webcam"
-            autoplay
-            playsinline
-            muted
-            class="camera-feed"
-            style="display:none;"
-        ></video>
+        <!-- LOADING OVERLAY -->
+        <div id="camera-loading">
 
-        <!-- IP CAMERA -->
-        <img            
-            id="ip-camera-stream" 
-            src=""
-            class="camera-feed"
-            style="
-            display:block;
-                width:900px;
-                height:550px;
-                border:3px solid cyan;
-            "
+            <div class="spinner"></div>
+
+            <h2>
+                CONNECTING TO CAMERA...
+            </h2>
+
+            <p>
+                Initializing live stream...
+            </p>
+
+        </div>
+
+        <!-- OFFLINE OVERLAY -->
+        <div id="camera-offline">
+
+            <h1>
+                CAMERA DISCONNECTED
+            </h1>
+
+            <p>
+                Attempting automatic reconnect...
+            </p>
+
+        </div>
+
+        <!-- FULLSCREEN BUTTON -->
+        <button
+            id="fullscreen-btn"
+            onclick="toggleFullscreen()"
         >
+
+            ⛶ Fullscreen
+
+        </button>
+
+        <!-- CAMERA WRAPPER -->
+        <div
+            id="camera-wrapper"
+            class="camera-wrapper"
+        >
+
+            <!-- BROWSER CAMERA -->
+            <video
+                id="browser-webcam"
+                autoplay
+                playsinline
+                muted
+                class="camera-feed"
+                style="display:none;"
+            ></video>
+
+            <!-- IP CAMERA -->
+            <img
+                id="ip-camera-stream"
+                src=""
+                class="camera-feed"
+                style="display:none;"
+            >
+
+        </div>
+
     </div>
 
     <!-- CAMERA BUTTONS -->
-    <div
-        class="camera-buttons"
-        style="
-            margin-top:20px;
-            display:flex;
-            gap:15px;
-            justify-content:center;
-            flex-wrap:wrap;
-        "
-    >
+    <div class="camera-buttons">
 
         <button
             id="start-camera"
@@ -347,9 +380,199 @@ const ipCameraStream =
         "ip-camera-stream"
     );
 
+const loadingOverlay =
+    document.getElementById(
+        "camera-loading"
+    );
+
+const offlineOverlay =
+    document.getElementById(
+        "camera-offline"
+    );
+
+const cameraWrapper =
+    document.getElementById(
+        "camera-wrapper"
+    );
+
 let currentStream = null;
 
 let browserCameraActive = false;
+
+let reconnectTimeout = null;
+
+let reconnectAttempts = 0;
+
+const MAX_RECONNECTS = 3;
+
+let streamStarted = false;
+
+let zoomLevel = 1;
+
+let moveX = 0;
+
+let moveY = 0;
+
+let fpsCounter = 0;
+
+let lastFrameTime = performance.now();
+
+
+// =========================
+// APPLY TRANSFORM
+// =========================
+
+function applyTransform(){
+
+    const transform =
+        `
+        translate(${moveX}px, ${moveY}px)
+        scale(${zoomLevel})
+        `;
+
+    browserWebcam.style.transform =
+        transform;
+
+    ipCameraStream.style.transform =
+        transform;
+
+}
+
+
+// =========================
+// FULLSCREEN
+// =========================
+
+function toggleFullscreen(){
+
+    if(!document.fullscreenElement){
+
+        cameraWrapper.requestFullscreen();
+
+    }
+
+    else{
+
+        document.exitFullscreen();
+
+    }
+
+}
+
+
+// =========================
+// ZOOM + DRAG
+// =========================
+
+let isDragging = false;
+
+let startX = 0;
+
+let startY = 0;
+
+cameraWrapper.addEventListener(
+    "wheel",
+    function(event){
+
+        event.preventDefault();
+
+        const zoomSpeed = 0.1;
+
+        if(event.deltaY < 0){
+
+            zoomLevel += zoomSpeed;
+
+        }
+
+        else{
+
+            zoomLevel -= zoomSpeed;
+
+            if(zoomLevel < 1){
+
+                zoomLevel = 1;
+
+            }
+
+        }
+
+        applyTransform();
+
+    }
+);
+
+cameraWrapper.addEventListener(
+    "mousedown",
+    function(event){
+
+        if(event.button === 2){
+
+            isDragging = true;
+
+            startX =
+                event.clientX - moveX;
+
+            startY =
+                event.clientY - moveY;
+
+            event.preventDefault();
+
+        }
+
+    }
+);
+
+window.addEventListener(
+    "mousemove",
+    function(event){
+
+        if(isDragging){
+
+            moveX =
+                event.clientX - startX;
+
+            moveY =
+                event.clientY - startY;
+
+            applyTransform();
+
+        }
+
+    }
+);
+
+window.addEventListener(
+    "mouseup",
+    function(){
+
+        isDragging = false;
+
+    }
+);
+
+cameraWrapper.addEventListener(
+    "contextmenu",
+    function(event){
+
+        event.preventDefault();
+
+    }
+);
+
+cameraWrapper.addEventListener(
+    "dblclick",
+    function(){
+
+        zoomLevel = 1;
+
+        moveX = 0;
+
+        moveY = 0;
+
+        applyTransform();
+
+    }
+);
 
 
 // =========================
@@ -362,13 +585,29 @@ async function startBrowserCamera(){
 
         browserCameraActive = true;
 
-        // STOP DJANGO STREAM
+        streamStarted = false;
+
+        reconnectAttempts = 0;
+
+        if(reconnectTimeout){
+
+            clearTimeout(
+                reconnectTimeout
+            );
+
+        }
+
+        offlineOverlay.style.display =
+            "none";
+
+        loadingOverlay.style.display =
+            "flex";
+
         ipCameraStream.style.display =
             "none";
 
         ipCameraStream.src = "";
 
-        // START WEBCAM
         const stream =
             await navigator
             .mediaDevices
@@ -386,6 +625,9 @@ async function startBrowserCamera(){
 
         browserWebcam.style.display =
             "block";
+
+        loadingOverlay.style.display =
+            "none";
 
         document.getElementById(
             "camera-status"
@@ -423,14 +665,25 @@ async function startBrowserCamera(){
 
 
 // =========================
-// STOP ALL CAMERAS
+// STOP CAMERA
 // =========================
 
 function stopAllCameras(){
 
     browserCameraActive = false;
 
-    // STOP BROWSER CAMERA
+    streamStarted = false;
+
+    reconnectAttempts = 0;
+
+    if(reconnectTimeout){
+
+        clearTimeout(
+            reconnectTimeout
+        );
+
+    }
+
     if(currentStream){
 
         currentStream
@@ -447,10 +700,15 @@ function stopAllCameras(){
     browserWebcam.style.display =
         "none";
 
-    // STOP DJANGO STREAM
     ipCameraStream.src = "";
 
     ipCameraStream.style.display =
+        "none";
+
+    loadingOverlay.style.display =
+        "none";
+
+    offlineOverlay.style.display =
         "none";
 
     document.getElementById(
@@ -458,74 +716,80 @@ function stopAllCameras(){
     ).innerHTML =
         "🔴 Camera Stopped";
 
-    document.getElementById(
-        "active-camera"
-    ).innerHTML =
-        "No Active Camera";
-
-    document.getElementById(
-        "stream-health"
-    ).innerHTML =
-        "Offline";
-
 }
 
 
 // =========================
-// REFRESH RTSP / LOCAL
+// REFRESH CAMERA
 // =========================
 
 function refreshCamera(){
 
-    browserCameraActive = false;
+    if(browserCameraActive){
 
-    // STOP BROWSER CAMERA
-    if(currentStream){
-
-        currentStream
-            .getTracks()
-            .forEach(track => track.stop());
-
-        browserWebcam.srcObject =
-            null;
-
-        currentStream = null;
+        return;
 
     }
+
+    if(streamStarted){
+
+        return;
+
+    }
+
+    streamStarted = true;
+
+    loadingOverlay.style.display =
+        "flex";
+
+    offlineOverlay.style.display =
+        "none";
 
     browserWebcam.style.display =
         "none";
 
-    // FORCE STREAM RELOAD
-    ipCameraStream.src = "";
+    ipCameraStream.style.display =
+        "block";
 
-    setTimeout(() => {
-
-        ipCameraStream.src =
-            "{% url 'video_feed' %}?" +
-            new Date().getTime();
-
-        ipCameraStream.style.display =
-            "block";
-
-    }, 300);
-
-    document.getElementById(
-        "camera-status"
-    ).innerHTML =
-        "🟢 Stream Active";
+    ipCameraStream.src =
+        "{% url 'video_feed' %}?" +
+        new Date().getTime();
 
 }
 
 
 // =========================
-// IMAGE LOAD SUCCESS
+// SUCCESS
 // =========================
 
 ipCameraStream.onload = function(){
 
+    reconnectAttempts = 0;
+
+    streamStarted = false;
+
     if(browserCameraActive)
         return;
+
+    const now = performance.now();
+
+    fpsCounter =
+        Math.round(
+            1000 / (now - lastFrameTime)
+        );
+
+    lastFrameTime = now;
+
+    document.getElementById(
+        "fps-counter"
+    ).innerHTML =
+        fpsCounter + " FPS";
+
+    loadingOverlay.style.display =
+        "none";
+
+    offlineOverlay.style.display =
+        "none";
 
     document.getElementById(
         "stream-health"
@@ -541,13 +805,35 @@ ipCameraStream.onload = function(){
 
 
 // =========================
-// IMAGE LOAD FAILED
+// ERROR
 // =========================
 
 ipCameraStream.onerror = function(){
 
-    if(browserCameraActive)
+    const activeCamera =
+        document.getElementById(
+            "camera-type"
+        ).innerText;
+
+    if(activeCamera !== "IP"){
+
         return;
+
+    }
+
+    if(browserCameraActive){
+
+        return;
+
+    }
+
+    streamStarted = false;
+
+    loadingOverlay.style.display =
+        "none";
+
+    offlineOverlay.style.display =
+        "flex";
 
     document.getElementById(
         "stream-health"
@@ -559,16 +845,57 @@ ipCameraStream.onerror = function(){
     ).innerHTML =
         "🔴 Stream Failed";
 
+    if(reconnectAttempts >= MAX_RECONNECTS){
+
+        console.log(
+            "MAX RECONNECT REACHED"
+        );
+
+        return;
+
+    }
+
+    reconnectAttempts++;
+
+    console.log(
+        "Reconnect Attempt:",
+        reconnectAttempts
+    );
+
+    if(reconnectTimeout){
+
+        clearTimeout(
+            reconnectTimeout
+        );
+
+    }
+
+    reconnectTimeout = setTimeout(() => {
+
+        if(browserCameraActive){
+
+            return;
+
+        }
+
+        streamStarted = false;
+
+        refreshCamera();
+
+    }, 3000);
+
 }
 
 
 // =========================
-// AUTO LOAD STREAM
+// AUTO LOAD
 // =========================
 
 window.onload = function(){
 
-    refreshCamera();
+    console.log(
+        "Dashboard Loaded"
+    );
 
 }
 
