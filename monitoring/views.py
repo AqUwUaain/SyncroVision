@@ -241,6 +241,10 @@ def camera_settings_view(request):
 # CAMERA SYSTEM
 # =========================
 
+# =========================
+# CAMERA SYSTEM
+# =========================
+
 def generate_frames():
 
     global CURRENT_CAMERA_MODE
@@ -252,40 +256,113 @@ def generate_frames():
     global CURRENT_STREAM_STATUS
 
     if cv2 is None:
+
         CURRENT_STREAM_STATUS = "Offline"
         CURRENT_DETECTION_STATUS = "Disabled"
 
         while True:
+
             time.sleep(1)
 
+    # =========================
     # OPEN CAMERA
+    # =========================
+
     if CURRENT_CAMERA_MODE == "local":
 
+        print("OPENING LOCAL CAMERA")
+
         camera = cv2.VideoCapture(
-            CURRENT_CAMERA_INDEX,
+            CURRENT_CAMERA_INDEX
         )
 
     else:
 
+        print("OPENING RTSP CAMERA")
+        print("URL:", CURRENT_CAMERA_URL)
+
+        # FFMPEG MODE
         camera = cv2.VideoCapture(
-            CURRENT_CAMERA_URL
+            CURRENT_CAMERA_URL,
+            cv2.CAP_FFMPEG
         )
 
+        print("FFMPEG STATUS:", camera.isOpened())
+
+        # FALLBACK
+        if not camera.isOpened():
+
+            print("FFMPEG FAILED")
+            print("TRYING NORMAL MODE")
+
+            camera = cv2.VideoCapture(
+                CURRENT_CAMERA_URL
+            )
+
+        print("FINAL STATUS:", camera.isOpened())
+
+        # TOTAL FAILURE
         if not camera.isOpened():
 
             CURRENT_STREAM_STATUS = "Offline"
-
-            CURRENT_CAMERA_STATUS = "Disconnected"
+            CURRENT_DETECTION_STATUS = "Disconnected"
 
             while True:
 
+                black_frame = (
+                    np.zeros(
+                        (550, 900, 3),
+                        dtype=np.uint8
+                    )
+                )
+
+                cv2.putText(
+                    black_frame,
+                    "RTSP CONNECTION FAILED",
+                    (180, 250),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 0, 255),
+                    3
+                )
+
+                cv2.putText(
+                    black_frame,
+                    CURRENT_CAMERA_URL,
+                    (20, 320),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (255, 255, 255),
+                    1
+                )
+
+                ret, buffer = cv2.imencode(
+                    '.jpg',
+                    black_frame
+                )
+
+                frame = buffer.tobytes()
+
+                yield (
+                    b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' +
+                    frame +
+                    b'\r\n'
+                )
+
                 time.sleep(1)
 
+    # =========================
     # CAMERA SETTINGS
+    # =========================
+
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
+    # =========================
     # FACE DETECTION
+    # =========================
+
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades +
         'haarcascade_frontalface_default.xml'
@@ -296,8 +373,11 @@ def generate_frames():
     last_log_time = 0
     last_motion_update = 0
 
-    # FPS TIMER
     prev_frame_time = time.time()
+
+    # =========================
+    # MAIN LOOP
+    # =========================
 
     while True:
 
@@ -306,19 +386,20 @@ def generate_frames():
         # CAMERA FAILED
         if not success:
 
+            print("FRAME READ FAILED")
+
             CURRENT_STREAM_STATUS = "Offline"
 
             black_frame = (
-                255 *
-                np.ones(
-                    (500, 900, 3),
+                np.zeros(
+                    (550, 900, 3),
                     dtype=np.uint8
                 )
             )
 
             cv2.putText(
                 black_frame,
-                "CAMERA OFFLINE",
+                "NO VIDEO FRAME",
                 (250, 250),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1.2,
@@ -344,7 +425,10 @@ def generate_frames():
 
         CURRENT_STREAM_STATUS = "Excellent"
 
-        # REAL FPS
+        # =========================
+        # FPS
+        # =========================
+
         new_frame_time = time.time()
 
         fps = 1 / (
@@ -358,19 +442,28 @@ def generate_frames():
 
         current_time = time.time()
 
+        # =========================
         # RESIZE
+        # =========================
+
         frame = cv2.resize(
             frame,
             (900, 550)
         )
 
+        # =========================
         # GRAYSCALE
+        # =========================
+
         gray = cv2.cvtColor(
             frame,
             cv2.COLOR_BGR2GRAY
         )
 
+        # =========================
         # FACE DETECTION
+        # =========================
+
         faces = face_cascade.detectMultiScale(
             gray,
             scaleFactor=1.1,
@@ -402,7 +495,10 @@ def generate_frames():
                 2
             )
 
+        # =========================
         # MOTION DETECTION
+        # =========================
+
         gray_blur = cv2.GaussianBlur(
             gray,
             (21, 21),
@@ -471,7 +567,10 @@ def generate_frames():
                 3
             )
 
-        # HUMAN ACTIVITY
+        # =========================
+        # DETECTION STATUS
+        # =========================
+
         if motion_detected and face_detected:
 
             CURRENT_DETECTION_STATUS = "ACTIVE"
@@ -512,7 +611,10 @@ def generate_frames():
 
             CURRENT_DETECTION_STATUS = "IDLE"
 
-        # CAMERA SOURCE LABEL
+        # =========================
+        # CAMERA LABEL
+        # =========================
+
         cv2.putText(
             frame,
             f"MODE: {CURRENT_CAMERA_MODE.upper()}",
@@ -523,7 +625,10 @@ def generate_frames():
             2
         )
 
+        # =========================
         # ENCODE FRAME
+        # =========================
+
         ret, buffer = cv2.imencode(
             '.jpg',
             frame
