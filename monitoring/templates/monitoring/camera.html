@@ -345,6 +345,12 @@ const currentMode =
 
 async function startBrowserCamera(){
 
+    if(currentMode !== "local"){
+
+        return;
+
+    }
+
     try{
 
         const stream =
@@ -424,9 +430,12 @@ function refreshCamera(){
 // AUTO MODE SWITCH
 // =========================
 
-window.onload = async function(){
+window.onload = function(){
 
-    // LOCAL CAMERA MODE
+    // =========================
+    // LOCAL MODE
+    // =========================
+
     if(currentMode === "local"){
 
         browserWebcam.style.display =
@@ -434,12 +443,14 @@ window.onload = async function(){
 
         ipCameraStream.style.display =
             "none";
-
-        await startBrowserCamera();
-
+        
+        startBrowserCamera();
     }
 
-    // IP CAMERA MODE
+    // =========================
+    // IP MODE
+    // =========================
+
     else{
 
         browserWebcam.style.display =
