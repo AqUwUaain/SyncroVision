@@ -1,0 +1,1656 @@
+/* =========================
+   THEME VARIABLES
+========================= */
+
+:root{
+
+    --bg-color: #111827;
+    --sidebar-color: #1f2937;
+    --card-color: #1f2937;
+    --box-color: #111827;
+
+    --text-color: white;
+    --secondary-text: #ddd;
+
+    --accent-color: #00ffcc;
+
+}
+
+/* LIGHT MODE */
+
+.light-mode{
+
+    --bg-color: #ecf7f6;
+
+    --sidebar-color: #009f94;
+
+    --card-color: #00bfb3;
+
+    --box-color: #f5f5f5;
+
+    --text-color: #111827;
+
+    --secondary-text: #444;
+
+    --accent-color: #00bfb3;
+
+    background:
+    linear-gradient(
+        135deg,
+        #ecf7f6,
+        #dff7f3,
+        #ffffff
+    );
+
+}
+.light-mode .card{
+
+    color: white;
+
+}
+
+.light-mode .monitor-panel{
+
+    background: #f4f4f4;
+
+    color: #08363a;
+
+}
+
+.light-mode .monitor-panel h2{
+
+    color: #00a99d;
+
+}
+
+.light-mode .log-box{
+
+    background: #f4f4f4;
+
+}
+
+.light-mode .logs-section{
+
+    background: #e7f5f2;
+    border: 1px solid #cdebe6;
+
+}
+
+.light-mode .camera-container{
+
+    border: 2px solid #00bfaf;
+
+}
+
+.light-mode .sidebar a{
+
+    color: white;
+
+}
+
+.light-mode #theme-toggle{
+
+    background: white;
+
+    color: #0fb5ad;
+
+}
+
+.light-mode .clock-panel{
+
+    background: #f4f4f4;
+
+}
+
+.light-mode #live-time{
+
+    color: #00a99d;
+
+}
+
+/* =========================
+   GLOBAL
+========================= */
+
+body{
+
+    margin: 0;
+    font-family: Arial;
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: 0.3s;
+
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+
+    width: 220px;
+    height: 100vh;
+
+    background: var(--sidebar-color);
+
+    position: fixed;
+
+    padding: 20px;
+
+    transition: 0.3s;
+
+}
+
+.sidebar h2{
+
+    color: var(--accent-color);
+
+}
+
+.sidebar a{
+
+    display: block;
+
+    color: var(--text-color);
+
+    text-decoration: none;
+
+    margin: 20px 0;
+
+    transition: 0.3s;
+
+}
+
+.sidebar a:hover{
+
+    color: var(--accent-color);
+
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+
+    margin-left: 260px;
+    padding: 20px;
+
+}
+
+/* =========================
+   TOPBAR
+========================= */
+
+.topbar{
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 30px;
+
+    flex-wrap: wrap;
+
+}
+
+/* =========================
+   CLOCK PANEL
+========================= */
+
+.clock-panel{
+
+    background: var(--card-color);
+
+    padding: 15px 25px;
+
+    border-radius: 15px;
+
+    min-width: 260px;
+
+    text-align: right;
+
+    box-shadow:
+        0 0 15px rgba(0,255,200,0.08);
+
+}
+
+#live-time{
+
+    font-size: 32px;
+
+    font-weight: bold;
+
+    color: var(--accent-color);
+
+}
+
+#live-date{
+
+    font-size: 14px;
+
+    color: var(--secondary-text);
+
+    margin-top: 5px;
+
+}
+
+/* =========================
+   TOP DASHBOARD
+========================= */
+
+.top-dashboard{
+
+    margin-bottom: 30px;
+
+}
+
+/* =========================
+   STATUS CARDS
+========================= */
+
+.cards{
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(220px, 1fr));
+
+    gap: 20px;
+
+    align-items: stretch;
+
+}
+
+.card{
+
+    background: #009f94 !important;
+
+    color: white;
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 20px rgba(0,0,0,0.25);
+
+    min-height: 120px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+}
+
+.card h3{
+
+    font-size: 28px;
+
+    margin-bottom: 20px;
+
+}
+
+.card p{
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+}
+
+/* =========================
+   LIVE MONITOR PANEL
+========================= */
+
+.monitor-panel{
+
+    background: #009f94 !important;
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 20px rgba(0,0,0,0.25);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    min-height: 120px;
+
+}
+
+.monitor-panel h2{
+
+    color: var(--accent-color);
+
+    margin: 0 0 10px 0;
+
+}
+
+/* =========================
+   MONITOR ITEMS
+========================= */
+
+.monitor-item{
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.08);
+
+    padding-bottom: 8px;
+
+}
+
+.monitor-item span{
+
+    color: white !important;
+
+}
+
+/* =========================
+   STATUS COLORS
+========================= */
+
+.healthy{
+
+    color: #4ade80;
+
+}
+
+.active-detection{
+
+    color: #f87171;
+
+}
+
+/* =========================
+   CAMERA SECTION
+========================= */
+
+.camera-section{
+
+    margin-bottom: 30px;
+
+}
+
+.camera-container{
+
+    width: 100%;
+
+    background: black;
+
+    border: 2px solid cyan;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+}
+
+.camera-feed{
+
+    width: 100%;
+
+    max-height: 700px;
+
+    object-fit: contain;
+
+    border-radius: 20px;
+
+    background: black;
+
+}
+
+/* =========================
+   LOGS
+========================= */
+
+.logs-section{
+
+    margin-top: 30px;
+
+    background: var(--card-color);
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+}
+
+.logs-grid{
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 20px;
+
+    margin-top: 20px;
+
+}
+
+.log-box{
+
+    background: var(--box-color);
+
+    padding: 20px;
+
+    border-radius: 12px;
+    border: 1px solid #bfe7df;
+}
+
+.log-box h3{
+
+    margin-bottom: 15px;
+
+}
+
+.log-box ul{
+
+    padding-left: 20px;
+
+}
+
+.log-box li{
+
+    margin-bottom: 10px;
+
+    color: var(--secondary-text);
+
+}
+
+/* =========================
+   CAMERA LOG SCROLL
+========================= */
+
+.camera-log-box{
+
+    height: 220px;
+
+    overflow-y: auto;
+
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+#theme-toggle{
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--accent-color);
+
+    color: black;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+}
+
+#theme-toggle:hover{
+
+    opacity: 0.85;
+
+}
+
+/* =========================
+   CAMERA SETTINGS
+========================= */
+
+.camera-select{
+
+    width: 100%;
+
+    padding: 14px;
+
+    border-radius: 10px;
+
+    border: none;
+
+    background: #111827;
+
+    color: white;
+
+    font-size: 16px;
+
+}
+
+.save-camera-btn{
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--accent-color);
+
+    color: black;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+/* =========================
+   MOBILE MENU BUTTON
+========================= */
+
+#menu-toggle{
+
+    display: none;
+
+    position: fixed;
+
+    top: 15px;
+    left: 15px;
+
+    z-index: 999;
+
+    background: var(--accent-color);
+
+    color: black;
+
+    border: none;
+
+    padding: 12px 15px;
+
+    border-radius: 10px;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media screen and (max-width: 1200px){
+
+    .cards{
+
+        grid-template-columns:
+            repeat(auto-fit, minmax(220px, 1fr));
+
+    }
+
+    .logs-grid{
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+@media screen and (max-width: 900px){
+
+    #menu-toggle{
+
+        display: block;
+
+    }
+
+    .sidebar{
+
+        position: fixed;
+
+        left: -250px;
+
+        top: 0;
+
+        width: 220px;
+
+        height: 100vh;
+
+        z-index: 998;
+
+    }
+
+    .show-sidebar{
+
+        left: 0;
+
+    }
+
+    .main{
+
+        margin-left: 0;
+
+        padding-top: 70px;
+
+    }
+
+    .camera-container{
+
+        height: auto;
+
+    }
+
+    .camera-feed{
+
+        max-height: 350px;
+
+    }
+
+}
+/* =========================
+   LOG SEARCH
+========================= */
+
+.log-search{
+
+    width: 100%;
+
+    padding: 14px;
+
+    margin-bottom: 20px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--bg-color);
+
+    color: var(--text-color);
+
+    font-size: 16px;
+
+    outline: none;
+
+    box-sizing: border-box;
+
+}
+
+/* =========================
+   SCROLLABLE LOG BOX
+========================= */
+
+.scrollable-log-box{
+
+    max-height: 650px;
+
+    overflow-y: auto;
+
+}
+
+/* =========================
+   CUSTOM SCROLLBAR
+========================= */
+
+.scrollable-log-box::-webkit-scrollbar{
+
+    width: 10px;
+
+}
+
+.scrollable-log-box::-webkit-scrollbar-track{
+
+    background: var(--sidebar-color);
+
+    border-radius: 10px;
+
+}
+
+.scrollable-log-box::-webkit-scrollbar-thumb{
+
+    background: var(--accent-color);
+
+    border-radius: 10px;
+
+}
+
+/* =========================
+   LOG ITEMS
+========================= */
+
+#log-list{
+
+    list-style: none;
+
+    padding: 0;
+
+    margin: 0;
+
+}
+
+#log-list li{
+
+    background: rgba(255,255,255,0.03);
+
+    padding: 14px 16px;
+
+    border-radius: 10px;
+
+    margin-bottom: 12px;
+
+    transition: 0.3s ease;
+
+    border-left: 4px solid var(--accent-color);
+
+}
+
+#log-list li:hover{
+
+    transform: translateX(4px);
+
+    background: rgba(255,255,255,0.06);
+
+}
+/* =========================
+   LOGIN PAGE
+========================= */
+
+.login-body{
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--bg-color),
+            #111827,
+            var(--sidebar-color)
+        );
+
+    font-family: Arial;
+
+    overflow: hidden;
+
+}
+
+.login-container{
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+}
+
+.login-box{
+
+    width: 100%;
+    max-width: 420px;
+
+    background: rgba(31,41,55,0.95);
+
+    padding: 40px;
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 0 35px rgba(0,255,200,0.12);
+
+    backdrop-filter: blur(10px);
+
+    animation:
+        loginFade 0.6s ease;
+
+}
+
+.login-box h1{
+
+    margin: 0;
+
+    font-size: 52px;
+
+    color: var(--accent-color);
+
+    text-align: center;
+
+    margin-bottom: 10px;
+
+}
+
+.login-subtitle{
+
+    text-align: center;
+
+    color: #cbd5e1;
+
+    margin-bottom: 35px;
+
+    font-size: 18px;
+
+}
+
+.login-box form{
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+}
+
+.login-box input{
+
+    padding: 16px;
+
+    border-radius: 12px;
+
+    border: none;
+
+    outline: none;
+
+    font-size: 16px;
+
+    background: #0f172a;
+
+    color: white;
+
+}
+
+.login-box input::placeholder{
+
+    color: #94a3b8;
+
+}
+
+.login-box button{
+
+    padding: 16px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: var(--accent-color);
+
+    color: black;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+}
+
+.login-box button:hover{
+
+    transform: translateY(-2px);
+
+    opacity: 0.9;
+
+}
+
+.error-box{
+
+    background: rgba(248,113,113,0.15);
+
+    color: #f87171;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    margin-bottom: 20px;
+
+    text-align: center;
+
+}
+
+#login-theme-toggle{
+
+    position: fixed;
+
+    top: 20px;
+    right: 20px;
+
+    z-index: 999;
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 12px 18px;
+
+    background: var(--accent-color);
+
+    color: black;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+/* =========================
+   LOGIN ANIMATION
+========================= */
+
+@keyframes loginFade{
+
+    from{
+
+        opacity: 0;
+        transform: translateY(20px);
+
+    }
+
+    to{
+
+        opacity: 1;
+        transform: translateY(0);
+
+    }
+
+}
+/* FORCE FIGMA LIGHT MODE */
+
+.light-mode .sidebar{
+    background: #009f94 !important;
+}
+
+.light-mode .card{
+    background: #00bfb3 !important;
+    color: white !important;
+}
+
+.light-mode .monitor-panel{
+    background: #00bfb3 !important;
+    color: white !important;
+}
+
+.light-mode .log-box{
+    background: #009f94 !important;
+    color: white !important;
+}
+
+.light-mode .logs-section{
+    background: #dff3ef !important;
+}
+
+.light-mode .card h3,
+.light-mode .card p,
+.light-mode .monitor-panel h2,
+.light-mode .monitor-panel span,
+.light-mode .monitor-panel strong,
+.light-mode .log-box h3,
+.light-mode .log-box li{
+    color: white !important;
+}
+/* RESTORE DARK MODE */
+
+body:not(.light-mode) .card{
+    background: #0f172a !important;
+    color: white !important;
+}
+
+body:not(.light-mode) .monitor-panel{
+    background: #111827 !important;
+    color: white !important;
+}
+
+body:not(.light-mode) .sidebar{
+    background: #1e293b !important;
+}
+
+body:not(.light-mode){
+    background: #020817 !important;
+    color: white !important;
+}
+/* existing css above */
+
+
+/* LIVE MONITOR FIX */
+.monitor-panel{
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.25);
+}
+
+.light-mode .monitor-panel{
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+/* =========================
+   LOGOUT SECTION
+========================= */
+
+.logout-section{
+
+    margin-top: auto;
+    padding-top: 30px;
+
+}
+
+#logout-btn{
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: #ef4444;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+}
+
+#logout-btn:hover{
+
+    background: #dc2626;
+
+    transform: translateY(-2px);
+
+}
+
+/* =========================
+   LOGOUT MODAL
+========================= */
+
+.logout-modal{
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.45);
+
+    backdrop-filter: blur(4px);
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 9999;
+
+}
+
+.logout-popup{
+
+    width: 90%;
+    max-width: 420px;
+
+    background: #00bfb3;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.25);
+
+    text-align: center;
+
+    animation: popupFade 0.25s ease;
+
+}
+
+.logout-icon{
+
+    font-size: 32px;
+
+    color: white;
+
+    padding: 18px 0;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.3);
+
+}
+
+.logout-popup h2{
+
+    color: white;
+
+    margin-top: 30px;
+
+    font-size: 24px;
+
+}
+
+.logout-popup p{
+
+    color: rgba(255,255,255,0.9);
+
+    margin: 15px 30px 30px;
+
+    font-size: 16px;
+
+}
+
+.logout-actions{
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 20px;
+
+    padding: 20px;
+
+    border-top:
+        1px solid rgba(255,255,255,0.3);
+
+}
+
+.logout-actions button,
+.confirm-logout{
+
+    min-width: 120px;
+
+    padding: 12px 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+}
+
+#cancel-logout{
+
+    background: #0f766e;
+
+    color: white;
+
+}
+
+.confirm-logout{
+
+    background: #ff4d4d;
+
+    color: white;
+
+    padding: 12px 28px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    transition: 0.3s;
+
+    border: none;
+
+    cursor: pointer;
+
+}
+
+.confirm-logout:hover{
+
+    background: #e63939;
+
+    transform: scale(1.03);
+
+}
+
+@keyframes popupFade{
+
+    from{
+
+        opacity: 0;
+        transform: scale(0.9);
+
+    }
+
+    to{
+
+        opacity: 1;
+        transform: scale(1);
+
+    }
+
+}
+/* =========================
+   LIGHT MODE MONITOR TEXT
+========================= */
+
+.light-mode .monitor-panel h2{
+
+    color: white !important;
+
+}
+
+.light-mode .monitor-item span{
+
+    color: white !important;
+
+}
+
+.light-mode .monitor-item strong{
+
+    color: #ffffff;
+
+}
+
+/* STATUS COLORS OVERRIDE */
+
+.light-mode .monitor-item strong.healthy{
+
+    color: #4dff88 !important;
+
+}
+
+.light-mode .monitor-item strong.active-detection{
+
+    color: #ffd54a !important;
+
+}
+
+.light-mode .monitor-item strong.offline{
+
+    color: #ff6b6b !important;
+
+}
+
+/* STATUS COLORS */
+
+.light-mode .healthy{
+
+    color: #4dff88 !important;
+
+}
+
+.light-mode .active-detection{
+
+    color: #ffd54a !important;
+
+}
+/* FORCE STATUS COLORS */
+
+.light-mode .healthy{
+
+    color: #4dff88 !important;
+
+}
+
+.light-mode .active-detection{
+
+    color: #ffd54a !important;
+
+}
+
+.light-mode .offline{
+
+    color: #ff6b6b !important;
+
+}
+/* =========================
+   DARK MODE BACKGROUND
+========================= */
+
+body:not(.light-mode){
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(0,255,200,0.08),
+            transparent 25%
+        ),
+
+        radial-gradient(
+            circle at bottom right,
+            rgba(0,150,255,0.08),
+            transparent 25%
+        ),
+
+        linear-gradient(
+            135deg,
+            #020617,
+            #041229,
+            #020617
+        );
+
+    background-attachment: fixed;
+
+}
+/* =========================
+   LOGIN LINKS
+========================= */
+
+.login-links{
+
+    margin-top: 15px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+}
+
+.login-links a{
+
+    color: white;
+
+    text-decoration: none;
+
+    transition: 0.3s;
+
+}
+
+.login-links a:hover{
+
+    color: #14f1d9;
+
+}
+
+.login-links span{
+
+    color: rgba(255,255,255,0.7);
+
+}
+/* =========================
+   SIDEBAR BRAND
+========================= */
+
+.sidebar-logo{
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+    color: #14f1d9;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 30px;
+
+}
+/* =========================
+   POLICY MODALS
+========================= */
+
+.policy-modal{
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background: rgba(0,0,0,0.75);
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 9999;
+
+    padding: 20px;
+
+}
+
+.policy-popup{
+
+    width: 100%;
+
+    max-width: 700px;
+
+    max-height: 80vh;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #1e293b;
+
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+}
+
+.policy-header{
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 20px;
+
+    background: #00bfb3;
+
+    color: white;
+
+}
+
+.policy-header h2{
+
+    margin: 0;
+
+}
+
+.close-policy{
+
+    background: transparent;
+
+    border: none;
+
+    color: white;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+}
+
+.policy-content{
+
+    padding: 25px;
+
+    overflow-y: auto;
+
+    max-height: 60vh;
+
+    color: white;
+
+    line-height: 1.8;
+
+}
+
+.policy-content h3{
+
+    color: #14f1d9;
+
+    margin-top: 20px;
+
+}
+
+.policy-content p{
+
+    color: rgba(255,255,255,0.85);
+
+}
+
+/* LIGHT MODE */
+
+.light-mode .policy-popup{
+
+    background: white;
+
+}
+
+.light-mode .policy-content{
+
+    color: #111827;
+
+}
+
+.light-mode .policy-content p{
+
+    color: #374151;
+
+}
+/* =========================
+   WEBCAM CAMERA SYSTEM
+========================= */
+
+.camera-feed{
+
+    width: 100%;
+
+    max-width: 1000px;
+
+    border-radius: 20px;
+
+    background: black;
+
+    border: 2px solid rgba(255,255,255,0.08);
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+
+}
+
+.camera-buttons{
+
+    margin-top: 20px;
+
+    display: flex;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+}
+
+#start-camera,
+#stop-camera{
+
+    padding: 14px 22px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+
+}
+
+#start-camera{
+
+    background: #16e0c4;
+
+    color: black;
+
+}
+
+#start-camera:hover{
+
+    transform: translateY(-2px);
+
+    opacity: 0.92;
+
+}
+
+#stop-camera{
+
+    background: #ff4d4d;
+
+    color: white;
+
+}
+
+#stop-camera:hover{
+
+    transform: translateY(-2px);
+
+    opacity: 0.92;
+
+}
