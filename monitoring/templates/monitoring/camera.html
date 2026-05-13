@@ -98,7 +98,7 @@ Dashboard
 
                 <span>CAMERA TYPE</span>
 
-                <strong>
+                <strong id="camera-type">
 
                     {{ camera_mode|upper }}
 
@@ -173,9 +173,10 @@ Dashboard
         Live Camera Feed
     </h2>
 
+    <!-- CAMERA FRAME -->
     <div class="camera-container">
 
-        <!-- LOCAL BROWSER WEBCAM -->
+        <!-- BROWSER CAMERA -->
         <video
             id="browser-webcam"
             autoplay
@@ -185,45 +186,54 @@ Dashboard
             style="display:none;"
         ></video>
 
-        <!-- DJANGO IP / RTSP STREAM -->
+        <!-- IP CAMERA -->
         <img
             id="ip-camera-stream"
-            src="{% url 'video_feed' %}"
+            src=""
             class="camera-feed"
             style="display:none;"
         >
 
-        <!-- BUTTONS -->
-        <div class="camera-buttons">
+    </div>
 
-            <button
-                id="start-camera"
-                onclick="startBrowserCamera()"
-            >
+    <!-- CAMERA BUTTONS -->
+    <div
+        class="camera-buttons"
+        style="
+            margin-top:20px;
+            display:flex;
+            gap:15px;
+            justify-content:center;
+            flex-wrap:wrap;
+        "
+    >
 
-                🎥 Start Browser Camera
+        <button
+            id="start-camera"
+            onclick="startBrowserCamera()"
+        >
 
-            </button>
+            🎥 Start Browser Camera
 
-            <button
-                id="stop-camera"
-                onclick="stopBrowserCamera()"
-            >
+        </button>
 
-                ⛔ Stop Camera
+        <button
+            id="stop-camera"
+            onclick="stopAllCameras()"
+        >
 
-            </button>
+            ⛔ Stop Camera
 
-            <button
-                id="refresh-camera"
-                onclick="refreshCamera()"
-            >
+        </button>
 
-                🔄 Refresh Stream
+        <button
+            id="refresh-camera"
+            onclick="refreshCamera()"
+        >
 
-            </button>
+            🔄 Refresh Stream
 
-        </div>
+        </button>
 
     </div>
 
@@ -340,19 +350,20 @@ const currentMode =
 
 
 // =========================
-// LOCAL BROWSER CAMERA
+// START BROWSER CAMERA
 // =========================
 
 async function startBrowserCamera(){
 
-    if(currentMode !== "local"){
-
-        return;
-
-    }
-
     try{
 
+        // STOP IP STREAM
+        ipCameraStream.src = "";
+
+        ipCameraStream.style.display =
+            "none";
+
+        // GET CAMERA
         const stream =
             await navigator
             .mediaDevices
@@ -371,13 +382,20 @@ async function startBrowserCamera(){
         browserWebcam.style.display =
             "block";
 
-        ipCameraStream.style.display =
-            "none";
-
         document.getElementById(
             "camera-status"
         ).innerHTML =
-            "🟢 Connected";
+            "🟢 Browser Camera Active";
+
+        document.getElementById(
+            "active-camera"
+        ).innerHTML =
+            "Browser Webcam";
+
+        document.getElementById(
+            "camera-type"
+        ).innerHTML =
+            "LOCAL";
 
     }
 
@@ -393,71 +411,98 @@ async function startBrowserCamera(){
 
 }
 
-function stopBrowserCamera(){
 
+// =========================
+// STOP EVERYTHING
+// =========================
+
+function stopAllCameras(){
+
+    // STOP BROWSER CAMERA
     if(currentStream){
 
         currentStream
             .getTracks()
             .forEach(track => track.stop());
 
-        browserWebcam.srcObject = null;
-
-        document.getElementById(
-            "camera-status"
-        ).innerHTML =
-            "🔴 Stopped";
+        browserWebcam.srcObject =
+            null;
 
     }
+
+    // STOP IP STREAM
+    ipCameraStream.src = "";
+
+    // HIDE BOTH
+    browserWebcam.style.display =
+        "none";
+
+    ipCameraStream.style.display =
+        "none";
+
+    document.getElementById(
+        "camera-status"
+    ).innerHTML =
+        "🔴 Stopped";
+
+    document.getElementById(
+        "active-camera"
+    ).innerHTML =
+        "No Active Camera";
 
 }
 
 
 // =========================
-// IP / RTSP CAMERA
+// REFRESH IP CAMERA
 // =========================
 
 function refreshCamera(){
 
+    // STOP LOCAL CAMERA
+    if(currentStream){
+
+        currentStream
+            .getTracks()
+            .forEach(track => track.stop());
+
+        browserWebcam.srcObject =
+            null;
+
+    }
+
+    browserWebcam.style.display =
+        "none";
+
+    // LOAD IP STREAM
     ipCameraStream.src =
         "{% url 'video_feed' %}?" +
         new Date().getTime();
+
+    ipCameraStream.style.display =
+        "block";
+
+    document.getElementById(
+        "camera-status"
+    ).innerHTML =
+        "🟢 IP Camera Active";
 
 }
 
 
 // =========================
-// AUTO MODE SWITCH
+// AUTO LOAD MODE
 // =========================
 
 window.onload = function(){
 
-    // =========================
-    // LOCAL MODE
-    // =========================
-
     if(currentMode === "local"){
 
-        browserWebcam.style.display =
-            "block";
-
-        ipCameraStream.style.display =
-            "none";
-        
         startBrowserCamera();
+
     }
 
-    // =========================
-    // IP MODE
-    // =========================
-
     else{
-
-        browserWebcam.style.display =
-            "none";
-
-        ipCameraStream.style.display =
-            "block";
 
         refreshCamera();
 
