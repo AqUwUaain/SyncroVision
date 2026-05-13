@@ -263,7 +263,6 @@ def generate_frames():
 
         camera = cv2.VideoCapture(
             CURRENT_CAMERA_INDEX,
-            cv2.CAP_DSHOW
         )
 
     else:

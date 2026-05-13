@@ -189,11 +189,15 @@ Dashboard
         <!-- IP CAMERA -->
         <img
             id="ip-camera-stream"
-            src=""
+            src="{% url 'video_feed' %}"
             class="camera-feed"
-            style="display:none;"
+            style="
+            display:block;
+                width:900px;
+                height:550px;
+                border:3px solid cyan;
+            "
         >
-
     </div>
 
     <!-- CAMERA BUTTONS -->
@@ -490,23 +494,9 @@ function refreshCamera(){
 }
 
 
-// =========================
-// AUTO LOAD MODE
-// =========================
-
 window.onload = function(){
 
-    if(currentMode === "local"){
-
-        startBrowserCamera();
-
-    }
-
-    else{
-
-        refreshCamera();
-
-    }
+    refreshCamera();
 
 }
 
