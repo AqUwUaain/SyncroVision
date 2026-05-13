@@ -4,6 +4,9 @@ except:
     cv2 = None
 import time
 import numpy as np
+import os
+
+os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
 
 try:
     from pygrabber.dshow_graph import FilterGraph
