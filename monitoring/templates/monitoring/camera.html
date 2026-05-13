@@ -100,7 +100,7 @@ Dashboard
 
                 <strong>
 
-                    IP / RTSP / LOCAL
+                    {{ camera_mode|upper }}
 
                 </strong>
 
@@ -175,15 +175,44 @@ Dashboard
 
     <div class="camera-container">
 
-        <!-- DJANGO VIDEO STREAM -->
+        <!-- LOCAL BROWSER WEBCAM -->
+        <video
+            id="browser-webcam"
+            autoplay
+            playsinline
+            muted
+            class="camera-feed"
+            style="display:none;"
+        ></video>
+
+        <!-- DJANGO IP / RTSP STREAM -->
         <img
-            id="camera-stream"
+            id="ip-camera-stream"
             src="{% url 'video_feed' %}"
             class="camera-feed"
+            style="display:none;"
         >
 
         <!-- BUTTONS -->
         <div class="camera-buttons">
+
+            <button
+                id="start-camera"
+                onclick="startBrowserCamera()"
+            >
+
+                🎥 Start Browser Camera
+
+            </button>
+
+            <button
+                id="stop-camera"
+                onclick="stopBrowserCamera()"
+            >
+
+                ⛔ Stop Camera
+
+            </button>
 
             <button
                 id="refresh-camera"
@@ -291,55 +320,137 @@ Dashboard
 
 </div>
 
-<!-- CAMERA STREAM SCRIPT -->
+<!-- HYBRID CAMERA SCRIPT -->
 <script>
+
+const browserWebcam =
+    document.getElementById(
+        "browser-webcam"
+    );
+
+const ipCameraStream =
+    document.getElementById(
+        "ip-camera-stream"
+    );
+
+let currentStream = null;
+
+const currentMode =
+    "{{ camera_mode }}";
+
+
+// =========================
+// LOCAL BROWSER CAMERA
+// =========================
+
+async function startBrowserCamera(){
+
+    try{
+
+        const stream =
+            await navigator
+            .mediaDevices
+            .getUserMedia({
+
+                video: true,
+                audio: false
+
+            });
+
+        currentStream = stream;
+
+        browserWebcam.srcObject =
+            stream;
+
+        browserWebcam.style.display =
+            "block";
+
+        ipCameraStream.style.display =
+            "none";
+
+        document.getElementById(
+            "camera-status"
+        ).innerHTML =
+            "🟢 Connected";
+
+    }
+
+    catch(error){
+
+        alert(
+            "Browser camera access denied."
+        );
+
+        console.error(error);
+
+    }
+
+}
+
+function stopBrowserCamera(){
+
+    if(currentStream){
+
+        currentStream
+            .getTracks()
+            .forEach(track => track.stop());
+
+        browserWebcam.srcObject = null;
+
+        document.getElementById(
+            "camera-status"
+        ).innerHTML =
+            "🔴 Stopped";
+
+    }
+
+}
+
+
+// =========================
+// IP / RTSP CAMERA
+// =========================
 
 function refreshCamera(){
 
-    const cameraStream =
-        document.getElementById(
-            "camera-stream"
-        );
-
-    cameraStream.src =
+    ipCameraStream.src =
         "{% url 'video_feed' %}?" +
         new Date().getTime();
 
 }
 
-window.onload = function(){
 
-    const cameraStatus =
-        document.getElementById(
-            "camera-status"
-        );
+// =========================
+// AUTO MODE SWITCH
+// =========================
 
-    const streamHealth =
-        document.getElementById(
-            "stream-health"
-        );
+window.onload = async function(){
 
-    const detectionStatus =
-        document.getElementById(
-            "detection-status"
-        );
+    // LOCAL CAMERA MODE
+    if(currentMode === "local"){
 
-    const activeCamera =
-        document.getElementById(
-            "active-camera"
-        );
+        browserWebcam.style.display =
+            "block";
 
-    cameraStatus.innerHTML =
-        "🟢 Connected";
+        ipCameraStream.style.display =
+            "none";
 
-    streamHealth.innerHTML =
-        "Excellent";
+        await startBrowserCamera();
 
-    detectionStatus.innerHTML =
-        "ACTIVE";
+    }
 
-    activeCamera.innerHTML =
-        "{{ camera_source }}";
+    // IP CAMERA MODE
+    else{
+
+        browserWebcam.style.display =
+            "none";
+
+        ipCameraStream.style.display =
+            "block";
+
+        refreshCamera();
+
+    }
 
 }
 
