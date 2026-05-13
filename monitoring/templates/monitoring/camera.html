@@ -187,9 +187,9 @@ Dashboard
         ></video>
 
         <!-- IP CAMERA -->
-        <img
-            id="ip-camera-stream"
-            src="{% url 'video_feed' %}"
+        <img            
+            id="ip-camera-stream" 
+            src=""
             class="camera-feed"
             style="
             display:block;
@@ -349,8 +349,7 @@ const ipCameraStream =
 
 let currentStream = null;
 
-const currentMode =
-    "{{ camera_mode }}";
+let browserCameraActive = false;
 
 
 // =========================
@@ -361,13 +360,15 @@ async function startBrowserCamera(){
 
     try{
 
-        // STOP IP STREAM
-        ipCameraStream.src = "";
+        browserCameraActive = true;
 
+        // STOP DJANGO STREAM
         ipCameraStream.style.display =
             "none";
 
-        // GET CAMERA
+        ipCameraStream.src = "";
+
+        // START WEBCAM
         const stream =
             await navigator
             .mediaDevices
@@ -399,17 +400,22 @@ async function startBrowserCamera(){
         document.getElementById(
             "camera-type"
         ).innerHTML =
-            "LOCAL";
+            "BROWSER";
+
+        document.getElementById(
+            "stream-health"
+        ).innerHTML =
+            "Excellent";
 
     }
 
     catch(error){
 
-        alert(
-            "Browser camera access denied."
-        );
-
         console.error(error);
+
+        alert(
+            "Cannot access browser camera."
+        );
 
     }
 
@@ -417,10 +423,12 @@ async function startBrowserCamera(){
 
 
 // =========================
-// STOP EVERYTHING
+// STOP ALL CAMERAS
 // =========================
 
 function stopAllCameras(){
+
+    browserCameraActive = false;
 
     // STOP BROWSER CAMERA
     if(currentStream){
@@ -432,14 +440,15 @@ function stopAllCameras(){
         browserWebcam.srcObject =
             null;
 
+        currentStream = null;
+
     }
 
-    // STOP IP STREAM
-    ipCameraStream.src = "";
-
-    // HIDE BOTH
     browserWebcam.style.display =
         "none";
+
+    // STOP DJANGO STREAM
+    ipCameraStream.src = "";
 
     ipCameraStream.style.display =
         "none";
@@ -447,23 +456,30 @@ function stopAllCameras(){
     document.getElementById(
         "camera-status"
     ).innerHTML =
-        "🔴 Stopped";
+        "🔴 Camera Stopped";
 
     document.getElementById(
         "active-camera"
     ).innerHTML =
         "No Active Camera";
 
+    document.getElementById(
+        "stream-health"
+    ).innerHTML =
+        "Offline";
+
 }
 
 
 // =========================
-// REFRESH IP CAMERA
+// REFRESH RTSP / LOCAL
 // =========================
 
 function refreshCamera(){
 
-    // STOP LOCAL CAMERA
+    browserCameraActive = false;
+
+    // STOP BROWSER CAMERA
     if(currentStream){
 
         currentStream
@@ -473,26 +489,82 @@ function refreshCamera(){
         browserWebcam.srcObject =
             null;
 
+        currentStream = null;
+
     }
 
     browserWebcam.style.display =
         "none";
 
-    // LOAD IP STREAM
-    ipCameraStream.src =
-        "{% url 'video_feed' %}?" +
-        new Date().getTime();
+    // FORCE STREAM RELOAD
+    ipCameraStream.src = "";
 
-    ipCameraStream.style.display =
-        "block";
+    setTimeout(() => {
+
+        ipCameraStream.src =
+            "{% url 'video_feed' %}?" +
+            new Date().getTime();
+
+        ipCameraStream.style.display =
+            "block";
+
+    }, 300);
 
     document.getElementById(
         "camera-status"
     ).innerHTML =
-        "🟢 IP Camera Active";
+        "🟢 Stream Active";
 
 }
 
+
+// =========================
+// IMAGE LOAD SUCCESS
+// =========================
+
+ipCameraStream.onload = function(){
+
+    if(browserCameraActive)
+        return;
+
+    document.getElementById(
+        "stream-health"
+    ).innerHTML =
+        "Excellent";
+
+    document.getElementById(
+        "camera-status"
+    ).innerHTML =
+        "🟢 Connected";
+
+}
+
+
+// =========================
+// IMAGE LOAD FAILED
+// =========================
+
+ipCameraStream.onerror = function(){
+
+    if(browserCameraActive)
+        return;
+
+    document.getElementById(
+        "stream-health"
+    ).innerHTML =
+        "Offline";
+
+    document.getElementById(
+        "camera-status"
+    ).innerHTML =
+        "🔴 Stream Failed";
+
+}
+
+
+// =========================
+// AUTO LOAD STREAM
+// =========================
 
 window.onload = function(){
 
