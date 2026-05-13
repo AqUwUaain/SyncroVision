@@ -56,7 +56,7 @@ Dashboard
 
             <p id="camera-status">
 
-                🔴 Not Connected
+                🟢 Connected
 
             </p>
 
@@ -69,7 +69,7 @@ Dashboard
 
             <p id="detection-card-status">
 
-                🟢 Idle
+                🟢 Active
 
             </p>
 
@@ -88,7 +88,7 @@ Dashboard
 
                 <strong id="active-camera">
 
-                    Browser Webcam
+                    {{ camera_source }}
 
                 </strong>
 
@@ -100,7 +100,7 @@ Dashboard
 
                 <strong>
 
-                    LOCAL DEVICE
+                    IP / RTSP / LOCAL
 
                 </strong>
 
@@ -115,7 +115,7 @@ Dashboard
                     id="stream-health"
                 >
 
-                    Offline
+                    Excellent
 
                 </strong>
 
@@ -127,7 +127,7 @@ Dashboard
 
                 <strong id="fps-counter">
 
-                    -- FPS
+                    LIVE
 
                 </strong>
 
@@ -154,7 +154,7 @@ Dashboard
                     id="detection-status"
                 >
 
-                    IDLE
+                    ACTIVE
 
                 </strong>
 
@@ -175,27 +175,22 @@ Dashboard
 
     <div class="camera-container">
 
-        <!-- LIVE WEBCAM -->
-        <video
-            id="webcam"
-            autoplay
-            playsinline
-            muted
+        <!-- DJANGO VIDEO STREAM -->
+        <img
+            id="camera-stream"
+            src="{% url 'video_feed' %}"
             class="camera-feed"
-        ></video>
+        >
 
         <!-- BUTTONS -->
         <div class="camera-buttons">
 
-            <button id="start-camera">
+            <button
+                id="refresh-camera"
+                onclick="refreshCamera()"
+            >
 
-                🎥 Use Webcam
-
-            </button>
-
-            <button id="stop-camera">
-
-                ⛔ Stop Camera
+                🔄 Refresh Stream
 
             </button>
 
@@ -296,90 +291,57 @@ Dashboard
 
 </div>
 
-<!-- WEBCAM SCRIPT -->
+<!-- CAMERA STREAM SCRIPT -->
 <script>
 
-const video =
-    document.getElementById("webcam");
+function refreshCamera(){
 
-const startButton =
-    document.getElementById("start-camera");
-
-const stopButton =
-    document.getElementById("stop-camera");
-
-const cameraStatus =
-    document.getElementById("camera-status");
-
-const streamHealth =
-    document.getElementById("stream-health");
-
-const detectionStatus =
-    document.getElementById("detection-status");
-
-let currentStream = null;
-
-startButton.addEventListener("click", async () => {
-
-    try{
-
-        const stream =
-            await navigator.mediaDevices.getUserMedia({
-
-                video: true,
-                audio: false
-
-            });
-
-        currentStream = stream;
-
-        video.srcObject = stream;
-
-        cameraStatus.innerHTML =
-            "🟢 Connected";
-
-        streamHealth.innerHTML =
-            "Excellent";
-
-        detectionStatus.innerHTML =
-            "ACTIVE";
-
-    }
-
-    catch(error){
-
-        alert(
-            "Camera access denied or unavailable."
+    const cameraStream =
+        document.getElementById(
+            "camera-stream"
         );
 
-        console.error(error);
+    cameraStream.src =
+        "{% url 'video_feed' %}?" +
+        new Date().getTime();
 
-    }
+}
 
-});
+window.onload = function(){
 
-stopButton.addEventListener("click", () => {
+    const cameraStatus =
+        document.getElementById(
+            "camera-status"
+        );
 
-    if(currentStream){
+    const streamHealth =
+        document.getElementById(
+            "stream-health"
+        );
 
-        currentStream
-            .getTracks()
-            .forEach(track => track.stop());
+    const detectionStatus =
+        document.getElementById(
+            "detection-status"
+        );
 
-        video.srcObject = null;
+    const activeCamera =
+        document.getElementById(
+            "active-camera"
+        );
 
-        cameraStatus.innerHTML =
-            "🔴 Not Connected";
+    cameraStatus.innerHTML =
+        "🟢 Connected";
 
-        streamHealth.innerHTML =
-            "Offline";
+    streamHealth.innerHTML =
+        "Excellent";
 
-        detectionStatus.innerHTML =
-            "IDLE";
+    detectionStatus.innerHTML =
+        "ACTIVE";
 
-    }
+    activeCamera.innerHTML =
+        "{{ camera_source }}";
 
-});
+}
 
 </script>
 
