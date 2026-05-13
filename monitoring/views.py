@@ -251,6 +251,13 @@ def generate_frames():
     global CURRENT_DETECTION_STATUS
     global CURRENT_STREAM_STATUS
 
+    if cv2 is None:
+        CURRENT_STREAM_STATUS = "Offline"
+        CURRENT_DETECTION_STATUS = "Disabled"
+
+        while True:
+            time.sleep(1)
+
     # OPEN CAMERA
     if CURRENT_CAMERA_MODE == "local":
 
