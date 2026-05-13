@@ -16,9 +16,16 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <!-- MAIN CSS -->
     <link
         rel="stylesheet"
         href="{% static 'css/style.css' %}"
+    >
+
+    <!-- FONT AWESOME -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
 </head>
@@ -35,28 +42,62 @@
 
         <h2 class="sidebar-logo">
 
-            SyncroVision
+            <div class="logo-top">
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <span>
+                    Syncro
+                </span>
+
+            </div>
+
+            <div class="logo-bottom">
+
+                Vision
+
+            </div>
 
         </h2>
 
+        <!-- DASHBOARD -->
         <a href="/dashboard/">
+
+            <i class="fa-solid fa-chart-line"></i>
             Dashboard
+
         </a>
 
+        <!-- CAMERA SETTINGS -->
         <a href="/camera-settings/">
+
+            <i class="fa-solid fa-camera"></i>
             Camera Settings
+
         </a>
 
+        <!-- WEBSITE LOGS -->
         <a href="/logs/">
+
+            <i class="fa-solid fa-globe"></i>
             Website Logs
+
         </a>
 
+        <!-- LOGIN ATTEMPTS -->
         <a href="/login-attempts/">
+
+            <i class="fa-solid fa-user-shield"></i>
             Login Attempts
+
         </a>
 
+        <!-- CAMERA LOGS -->
         <a href="/camera-logs/">
+
+            <i class="fa-solid fa-video"></i>
             Camera Logs
+
         </a>
 
         <br>
@@ -66,7 +107,10 @@
             id="theme-toggle"
             type="button"
         >
-            🌙 Toggle Theme
+
+            <i class="fa-solid fa-moon"></i>
+            Toggle Theme
+
         </button>
 
         <!-- PUSH LOGOUT TO BOTTOM -->
@@ -76,7 +120,10 @@
                 id="logout-btn"
                 type="button"
             >
+
+                <i class="fa-solid fa-right-from-bracket"></i>
                 Logout
+
             </button>
 
         </div>
@@ -245,4 +292,3 @@
 
 </body>
 
-</html>
