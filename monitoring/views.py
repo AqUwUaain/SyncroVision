@@ -1,8 +1,14 @@
-import cv2
+try:
+    import cv2
+except:
+    cv2 = None
 import time
 import numpy as np
 
-from pygrabber.dshow_graph import FilterGraph
+try:
+    from pygrabber.dshow_graph import FilterGraph
+except:
+    FilterGraph = None
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, redirect
 
