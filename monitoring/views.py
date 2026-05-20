@@ -264,145 +264,209 @@ def generate_frames():
         CURRENT_DETECTION_STATUS = "Disabled"
 
         while True:
-
             time.sleep(1)
 
+    camera = None
+
     # =========================
-    # OPEN CAMERA
+    # CAMERA OPEN FUNCTION
     # =========================
 
-    if CURRENT_CAMERA_MODE == "local":
+    def open_camera():
 
-        print("OPENING LOCAL CAMERA")
+        global CURRENT_CAMERA_MODE
+        global CURRENT_CAMERA_INDEX
+        global CURRENT_CAMERA_URL
 
-        camera = cv2.VideoCapture(
-            CURRENT_CAMERA_INDEX
-        )
+        try:
 
-    else:
+            # =========================
+            # LOCAL CAMERA
+            # =========================
 
-        print("OPENING RTSP CAMERA")
-        print("URL:", CURRENT_CAMERA_URL)
+            if CURRENT_CAMERA_MODE == "local":
 
-        os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
+                print("OPENING LOCAL CAMERA")
 
-        # FFMPEG MODE
-        camera = cv2.VideoCapture(
-            CURRENT_CAMERA_URL,
-            cv2.CAP_FFMPEG
-        )
-
-        print("FFMPEG STATUS:", camera.isOpened())
-
-        # FALLBACK
-        if not camera.isOpened():
-
-            print("FFMPEG FAILED")
-            print("TRYING NORMAL MODE")
-
-            camera = cv2.VideoCapture(
-                CURRENT_CAMERA_URL
-            )
-
-        print("FINAL STATUS:", camera.isOpened())
-
-        # TOTAL FAILURE
-        if not camera.isOpened():
-
-            CURRENT_STREAM_STATUS = "Offline"
-            CURRENT_DETECTION_STATUS = "Disconnected"
-
-            while True:
-
-                black_frame = (
-                    np.zeros(
-                        (550, 900, 3),
-                        dtype=np.uint8
-                    )
+                cam = cv2.VideoCapture(
+                    CURRENT_CAMERA_INDEX,
+                    cv2.CAP_DSHOW
                 )
 
-                cv2.putText(
-                    black_frame,
-                    "RTSP CONNECTION FAILED",
-                    (180, 250),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (0, 0, 255),
-                    3
+                cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
+                time.sleep(1)
+
+                success = False
+                frame = None
+
+                start_time = time.time()
+
+                while time.time() - start_time < 5:
+
+                    success, frame = cam.read()
+
+                    if success and frame is not None:
+                        break
+
+                    time.sleep(0.1)
+
+                print("LOCAL CAMERA TEST:", success)
+
+                if success:
+                    return cam
+
+                cam.release()
+
+                return None
+
+            # =========================
+            # RTSP / IP CAMERA
+            # =========================
+
+            else:
+
+                print("OPENING RTSP CAMERA")
+                print("URL:", CURRENT_CAMERA_URL)
+
+                os.environ[
+                    "OPENCV_FFMPEG_CAPTURE_OPTIONS"
+                ] = (
+                    "rtsp_transport;tcp|"
+                    "stimeout;5000000|"
+                    "buffer_size;1024000|"
+                    "max_delay;500000"
                 )
 
-                cv2.putText(
-                    black_frame,
+                cam = cv2.VideoCapture(
                     CURRENT_CAMERA_URL,
-                    (20, 320),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (255, 255, 255),
+                    cv2.CAP_FFMPEG
+                )
+
+                cam.set(
+                    cv2.CAP_PROP_OPEN_TIMEOUT_MSEC,
+                    5000
+                )
+
+                cam.set(
+                    cv2.CAP_PROP_READ_TIMEOUT_MSEC,
+                    5000
+                )
+
+                cam.set(
+                    cv2.CAP_PROP_BUFFERSIZE,
                     1
-                )
-
-                ret, buffer = cv2.imencode(
-                    '.jpg',
-                    black_frame
-                )
-
-                frame = buffer.tobytes()
-
-                yield (
-                    b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' +
-                    frame +
-                    b'\r\n'
                 )
 
                 time.sleep(1)
 
+                print(
+                    "FFMPEG STATUS:",
+                    cam.isOpened()
+                )
+
+                success = False
+                frame = None
+
+                start_time = time.time()
+
+                # =========================
+                # SAFE FRAME TEST
+                # =========================
+
+                while time.time() - start_time < 5:
+
+                    success, frame = cam.read()
+
+                    if success and frame is not None:
+                        break
+
+                    time.sleep(0.1)
+
+                print("FIRST FRAME:", success)
+
+                # =========================
+                # FALLBACK NORMAL MODE
+                # =========================
+
+                if not success:
+
+                    print("FFMPEG FAILED")
+                    print("TRYING NORMAL MODE")
+
+                    try:
+                        cam.release()
+                    except:
+                        pass
+
+                    time.sleep(1)
+
+                    cam = cv2.VideoCapture(
+                        CURRENT_CAMERA_URL
+                    )
+
+                    cam.set(
+                        cv2.CAP_PROP_BUFFERSIZE,
+                        1
+                    )
+
+                    success = False
+                    frame = None
+
+                    start_time = time.time()
+
+                    while time.time() - start_time < 5:
+
+                        success, frame = cam.read()
+
+                        if success and frame is not None:
+                            break
+
+                        time.sleep(0.1)
+
+                    print(
+                        "NORMAL MODE STATUS:",
+                        success
+                    )
+
+                if success:
+                    return cam
+
+                try:
+                    cam.release()
+                except:
+                    pass
+
+                return None
+
+        except Exception as e:
+
+            print("CAMERA OPEN ERROR:", e)
+
+            return None
+
     # =========================
-    # CAMERA SETTINGS
+    # INITIAL CAMERA OPEN
     # =========================
 
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    camera = open_camera()
 
-    # =========================
-    # FACE DETECTION
-    # =========================
-
-    face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades +
-        'haarcascade_frontalface_default.xml'
-    )
-
-    previous_frame = None
-
-    last_log_time = 0
-    last_motion_update = 0
-
-    prev_frame_time = time.time()
+    reconnect_attempts = 0
 
     # =========================
     # MAIN LOOP
     # =========================
 
-    # =========================
-    # STREAM WATCHDOG
-    # =========================
-
-    reconnect_attempts = 0
-
     while True:
 
-        success, frame = camera.read()
-
         # =========================
-        # CAMERA FAILED
+        # CAMERA NOT AVAILABLE
         # =========================
 
-        if not success or frame is None:
-
-            print("FRAME READ FAILED")
+        if camera is None:
 
             CURRENT_STREAM_STATUS = "Offline"
+            CURRENT_DETECTION_STATUS = "Disconnected"
 
             reconnect_attempts += 1
 
@@ -410,58 +474,6 @@ def generate_frames():
                 f"RECONNECT ATTEMPT: "
                 f"{reconnect_attempts}"
             )
-
-            # RELEASE DEAD CAMERA
-            try:
-                camera.release()
-            except:
-                pass
-
-            # WAIT BEFORE RETRY
-            time.sleep(2)
-
-            # =========================
-            # RECONNECT CAMERA
-            # =========================
-
-            try:
-
-                if CURRENT_CAMERA_MODE == "local":
-
-                    camera = cv2.VideoCapture(
-                        CURRENT_CAMERA_INDEX
-                    )
-
-                else:
-
-                    os.environ[
-                        "OPENCV_FFMPEG_CAPTURE_OPTIONS"
-                    ] = "rtsp_transport;tcp"
-
-                    camera = cv2.VideoCapture(
-                        CURRENT_CAMERA_URL,
-                        cv2.CAP_FFMPEG
-                    )
-
-                    # FALLBACK
-                    if not camera.isOpened():
-
-                        camera = cv2.VideoCapture(
-                            CURRENT_CAMERA_URL
-                        )
-
-                print(
-                    "RECONNECT STATUS:",
-                    camera.isOpened()
-                )
-
-            except Exception as e:
-
-                print("RECONNECT ERROR:", e)
-
-            # =========================
-            # SHOW OFFLINE SCREEN
-            # =========================
 
             black_frame = np.zeros(
                 (550, 900, 3),
@@ -481,7 +493,7 @@ def generate_frames():
             cv2.putText(
                 black_frame,
                 "ATTEMPTING RECONNECT...",
-                (180, 300),
+                (170, 300),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.9,
                 (255, 255, 255),
@@ -512,36 +524,69 @@ def generate_frames():
                 b'\r\n'
             )
 
+            time.sleep(2)
+
+            camera = open_camera()
+
             continue
 
         # =========================
-        # CAMERA RECOVERED
+        # READ FRAME
         # =========================
+
+        try:
+
+            read_start = time.time()
+
+            success = False
+            frame = None
+
+            while time.time() - read_start < 5:
+
+                success, frame = camera.read()
+
+                if success and frame is not None:
+                    break
+
+                time.sleep(0.05)
+
+        except Exception as e:
+
+            print("READ ERROR:", e)
+
+            success = False
+            frame = None
+
+        # =========================
+        # FRAME FAILED
+        # =========================
+
+        if not success or frame is None:
+
+            print("FRAME READ FAILED")
+
+            CURRENT_STREAM_STATUS = "Offline"
+
+            try:
+                camera.release()
+            except:
+                pass
+
+            cv2.destroyAllWindows()
+
+            camera = None
+
+            continue
 
         reconnect_attempts = 0
 
+        # =========================
+        # CAMERA ACTIVE
+        # =========================
+
         CURRENT_STREAM_STATUS = "Excellent"
 
-        # =========================
-        # FPS
-        # =========================
-
-        new_frame_time = time.time()
-
-        fps = 1 / (
-            new_frame_time -
-            prev_frame_time
-        )
-
-        prev_frame_time = new_frame_time
-
-        CURRENT_FPS = int(fps)
-
-        current_time = time.time()
-
-        # =========================
-        # RESIZE
-        # =========================
+        # Resize
 
         frame = cv2.resize(
             frame,
@@ -549,7 +594,20 @@ def generate_frames():
         )
 
         # =========================
-        # GRAYSCALE
+        # FPS
+        # =========================
+
+        CURRENT_FPS = int(
+            camera.get(cv2.CAP_PROP_FPS)
+        )
+
+        if CURRENT_FPS <= 0:
+            CURRENT_FPS = 30
+
+        current_time = time.time()
+
+        # =========================
+        # FACE DETECTION
         # =========================
 
         gray = cv2.cvtColor(
@@ -557,9 +615,10 @@ def generate_frames():
             cv2.COLOR_BGR2GRAY
         )
 
-        # =========================
-        # FACE DETECTION
-        # =========================
+        face_cascade = cv2.CascadeClassifier(
+            cv2.data.haarcascades +
+            'haarcascade_frontalface_default.xml'
+        )
 
         faces = face_cascade.detectMultiScale(
             gray,
@@ -582,93 +641,11 @@ def generate_frames():
                 3
             )
 
-            cv2.putText(
-                frame,
-                "FACE DETECTED",
-                (x, y - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (255, 0, 0),
-                2
-            )
-
-        # =========================
-        # MOTION DETECTION
-        # =========================
-
-        gray_blur = cv2.GaussianBlur(
-            gray,
-            (21, 21),
-            0
-        )
-
-        if previous_frame is None:
-
-            previous_frame = gray_blur
-
-            continue
-
-        delta_frame = cv2.absdiff(
-            previous_frame,
-            gray_blur
-        )
-
-        if current_time - last_motion_update > 0.5:
-
-            previous_frame = gray_blur
-
-            last_motion_update = current_time
-
-        thresh_frame = cv2.threshold(
-            delta_frame,
-            35,
-            255,
-            cv2.THRESH_BINARY
-        )[1]
-
-        thresh_frame = cv2.dilate(
-            thresh_frame,
-            None,
-            iterations=2
-        )
-
-        contours, _ = cv2.findContours(
-            thresh_frame,
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
-        )
-
-        motion_detected = False
-
-        for contour in contours:
-
-            area = cv2.contourArea(contour)
-
-            if area < 3500:
-                continue
-
-            (x, y, w, h) = cv2.boundingRect(
-                contour
-            )
-
-            if w < 40 or h < 40:
-                continue
-
-            motion_detected = True
-
-            cv2.rectangle(
-                frame,
-                (x, y),
-                (x + w, y + h),
-                (0, 255, 0),
-                3
-            )
-
         # =========================
         # DETECTION STATUS
         # =========================
 
-        if motion_detected and face_detected:
+        if face_detected:
 
             CURRENT_DETECTION_STATUS = "ACTIVE"
 
@@ -679,28 +656,6 @@ def generate_frames():
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
                 (0, 0, 255),
-                3
-            )
-
-            if current_time - last_log_time > 10:
-
-                CameraLog.objects.create(
-                    event="Human activity detected"
-                )
-
-                last_log_time = current_time
-
-        elif motion_detected:
-
-            CURRENT_DETECTION_STATUS = "MOTION"
-
-            cv2.putText(
-                frame,
-                "MOTION DETECTED",
-                (20, 50),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (0, 255, 255),
                 3
             )
 
@@ -723,7 +678,7 @@ def generate_frames():
         )
 
         # =========================
-        # ENCODE FRAME
+        # ENCODE
         # =========================
 
         ret, buffer = cv2.imencode(
@@ -739,9 +694,6 @@ def generate_frames():
             frame +
             b'\r\n'
         )
-
-    camera.release()
-
 
 # =========================
 # VIDEO FEED

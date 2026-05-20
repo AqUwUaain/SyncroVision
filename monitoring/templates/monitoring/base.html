@@ -130,6 +130,12 @@
 
     </div>
 
+    <!-- SIDEBAR OVERLAY -->
+    <div
+        class="sidebar-overlay"
+        id="sidebar-overlay"
+    ></div>
+
     <!-- LOGOUT MODAL -->
     <div
         id="logout-modal"
@@ -180,7 +186,9 @@
 
     </div>
 
-    <!-- THEME -->
+    <!-- =========================
+         THEME SYSTEM
+    ========================== -->
     <script>
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -215,7 +223,9 @@
 
     </script>
 
-    <!-- SIDEBAR -->
+    <!-- =========================
+         SIDEBAR SYSTEM
+    ========================== -->
     <script>
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -226,21 +236,61 @@
         const sidebar =
             document.getElementById("sidebar");
 
+        const overlay =
+            document.getElementById("sidebar-overlay");
+
+        /* OPEN SIDEBAR */
+
         if(menuToggle){
 
             menuToggle.addEventListener("click", () => {
 
                 sidebar.classList.toggle("show-sidebar");
 
+                overlay.classList.toggle("show-overlay");
+
+                document.querySelector(".main")
+                .classList.toggle("sidebar-open");
+
             });
 
         }
+
+        /* CLOSE SIDEBAR WHEN CLICKING OUTSIDE */
+
+        if(overlay){
+
+            overlay.addEventListener("click", () => {
+
+                sidebar.classList.remove("show-sidebar");
+
+                overlay.classList.remove("show-overlay");
+
+            });
+
+        }
+
+        /* AUTO RESET ON DESKTOP */
+
+        window.addEventListener("resize", () => {
+
+            if(window.innerWidth > 768){
+
+                sidebar.classList.remove("show-sidebar");
+
+                overlay.classList.remove("show-overlay");
+
+            }
+
+        });
 
     });
 
     </script>
 
-    <!-- LOGOUT POPUP -->
+    <!-- =========================
+         LOGOUT POPUP
+    ========================== -->
     <script>
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -292,3 +342,4 @@
 
 </body>
 
+</html>
