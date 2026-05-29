@@ -6,8 +6,6 @@ import time
 import numpy as np
 import os
 
-from urllib3 import request
-
 os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
 
 try:
