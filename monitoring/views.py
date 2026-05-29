@@ -6,6 +6,8 @@ import time
 import numpy as np
 import os
 
+from urllib3 import request
+
 os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
 
 try:
@@ -52,6 +54,9 @@ CURRENT_DETECTION_STATUS = "IDLE"
 
 CURRENT_STREAM_STATUS = "Offline"
 
+LAST_DETECTION_EVENT = ""
+
+LAST_CAMERA_EVENT = ""
 
 # =========================
 # LOGIN
@@ -114,6 +119,21 @@ def login_view(request):
 @login_required
 def logout_view(request):
 
+    ip = request.META.get(
+        'REMOTE_ADDR'
+    )
+    AccessLog.objects.create(
+        user=request.user,
+        action="Logged Out",
+        ip_address=ip
+    )
+
+    LoginLog.objects.create(
+        username=request.user.username,
+        ip_address=ip,
+        status='LOGOUT'
+    )
+
     logout(request)
 
     return redirect('/')
@@ -134,6 +154,7 @@ def dashboard_view(request):
 
     AccessLog.objects.create(
         user=request.user,
+        action="Viewed Dashboard",
         ip_address=ip
     )
 
@@ -196,6 +217,14 @@ def camera_settings_view(request):
     global CURRENT_CAMERA_INDEX
     global CURRENT_CAMERA_URL
 
+    ip = request.META.get('REMOTE_ADDR')
+
+    AccessLog.objects.create(
+        user=request.user,
+        action="Viewed Camera Settings",
+        ip_address=ip
+    )
+
     if request.method == 'POST':
 
         camera_mode = request.POST.get(
@@ -203,6 +232,13 @@ def camera_settings_view(request):
         )
 
         CURRENT_CAMERA_MODE = camera_mode
+
+        CameraLog.objects.create(
+            event=(
+                f"Camera Mode Changed To "
+                f"{camera_mode.upper()}"
+            )
+        )
 
         # LOCAL CAMERA
         if camera_mode == "local":
@@ -219,6 +255,13 @@ def camera_settings_view(request):
 
                 CURRENT_CAMERA_INDEX = 0
 
+            CameraLog.objects.create(
+                event=(
+                    f"Local Camera Selected "
+                    f"({CURRENT_CAMERA_INDEX})"
+                )
+            )
+
         # IP CAMERA
         elif camera_mode == "ip":
 
@@ -226,23 +269,24 @@ def camera_settings_view(request):
                 'camera_url'
             )
 
+            CameraLog.objects.create(
+                event="IP Camera URL Updated"
+            )
+
     available_cameras = get_available_cameras()
 
     return render(
         request,
-            'monitoring/camera_settings.html',
-            {
-                'current_camera': CURRENT_CAMERA_INDEX,
-                'current_mode': CURRENT_CAMERA_MODE,
-                'current_url': CURRENT_CAMERA_URL,
-                'available_cameras': available_cameras
-            }
-)
+        'monitoring/camera_settings.html',
+        {
+            'current_camera': CURRENT_CAMERA_INDEX,
+            'current_mode': CURRENT_CAMERA_MODE,
+            'current_url': CURRENT_CAMERA_URL,
+            'available_cameras': available_cameras
+        }
+    )
 
 
-# =========================
-# CAMERA SYSTEM
-# =========================
 
 # =========================
 # CAMERA SYSTEM
@@ -288,9 +332,13 @@ def generate_frames():
 
                 print("OPENING LOCAL CAMERA")
 
+                CameraLog.objects.create(
+                    event=f"Attempting Local Camera ({CURRENT_CAMERA_INDEX})"
+                )
+
                 cam = cv2.VideoCapture(
                     CURRENT_CAMERA_INDEX,
-                    cv2.CAP_DSHOW
+                    
                 )
 
                 cam.set(cv2.CAP_PROP_BUFFERSIZE, 1)
@@ -644,10 +692,19 @@ def generate_frames():
         # =========================
         # DETECTION STATUS
         # =========================
-
+        global LAST_DETECTION_EVENT
+        
         if face_detected:
 
             CURRENT_DETECTION_STATUS = "ACTIVE"
+
+            if LAST_DETECTION_EVENT != "ACTIVE":
+
+                CameraLog.objects.create(
+                    event="Human Activity Detected"
+                )
+
+            LAST_DETECTION_EVENT = "ACTIVE"
 
             cv2.putText(
                 frame,
@@ -662,6 +719,14 @@ def generate_frames():
         else:
 
             CURRENT_DETECTION_STATUS = "IDLE"
+
+            if LAST_DETECTION_EVENT != "IDLE":
+
+                CameraLog.objects.create(
+                    event="No Human Activity"
+                )
+
+                LAST_DETECTION_EVENT = "IDLE"
 
         # =========================
         # CAMERA LABEL
@@ -698,7 +763,7 @@ def generate_frames():
 # =========================
 # VIDEO FEED
 # =========================
-
+@login_required
 def video_feed(request):
 
     return StreamingHttpResponse(
@@ -713,6 +778,14 @@ def video_feed(request):
 
 @login_required
 def logs_view(request):
+
+    ip = request.META.get('REMOTE_ADDR')
+
+    AccessLog.objects.create(
+        user=request.user,
+        action="Viewed Website Logs",
+        ip_address=ip
+    )
 
     accessLogs = AccessLog.objects.order_by(
         '-timestamp'
@@ -734,6 +807,14 @@ def logs_view(request):
 @login_required
 def login_attempts_view(request):
 
+    ip = request.META.get('REMOTE_ADDR')
+
+    AccessLog.objects.create(
+        user=request.user,
+        action="Viewed Login Attempts",
+        ip_address=ip
+    )
+
     loginLogs = LoginLog.objects.order_by(
         '-timestamp'
     )
@@ -753,6 +834,14 @@ def login_attempts_view(request):
 
 @login_required
 def camera_logs_view(request):
+
+    ip = request.META.get('REMOTE_ADDR')
+
+    AccessLog.objects.create(
+        user=request.user,
+        action="Viewed Camera Logs",
+        ip_address=ip
+    )
 
     cameraLogs = CameraLog.objects.order_by(
         '-timestamp'
