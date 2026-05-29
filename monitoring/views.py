@@ -17,7 +17,7 @@ from django.shortcuts import render, redirect
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-
+from django.http import JsonResponse
 from .models import AccessLog, LoginLog, CameraLog
 
 
@@ -852,3 +852,18 @@ def camera_logs_view(request):
             'cameraLogs': cameraLogs
         }
     )
+@login_required
+def camera_action_log(request):
+
+    action = request.GET.get("action")
+
+    if action:
+
+        CameraLog.objects.create(
+            event=action
+        )
+
+    return JsonResponse({
+        "status": "ok"
+    })
+    

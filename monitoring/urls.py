@@ -52,4 +52,9 @@ urlpatterns = [
         views.logout_view,
         name='logout'
     ),
+    path(
+    'camera-action-log/',
+    views.camera_action_log,
+    name='camera_action_log'
+),
 ]

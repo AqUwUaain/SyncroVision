@@ -420,7 +420,13 @@ let fpsCounter = 0;
 
 let lastFrameTime = performance.now();
 
+function logCameraAction(action){
 
+    fetch(
+        `/camera-action-log/?action=${encodeURIComponent(action)}`
+    );
+
+}
 // =========================
 // APPLY TRANSFORM
 // =========================
@@ -587,7 +593,9 @@ async function startBrowserCamera(){
     try{
 
         browserCameraActive = true;
-
+        logCameraAction(
+            "Browser Camera Started"
+        );
         streamStarted = false;
 
         reconnectAttempts = 0;
@@ -672,7 +680,9 @@ async function startBrowserCamera(){
 // =========================
 
 function stopAllCameras(){
-
+    logCameraAction(
+        "Camera Stopped"
+    );
     browserCameraActive = false;
 
     streamStarted = false;
@@ -739,6 +749,9 @@ function refreshCamera(){
         return;
 
     }
+    logCameraAction(
+        "Camera Stream Refreshed"
+    );
 
     streamStarted = true;
 
