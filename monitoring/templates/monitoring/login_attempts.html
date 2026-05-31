@@ -31,9 +31,19 @@ Login Attempts
 
             <li>
 
-                {{ log.username }} -
-                {{ log.status }} -
-                {{ log.timestamp }}
+                Username: {{ log.username }}
+
+                |
+
+                Status: {{ log.status }}
+
+                |
+
+                IP: {{ log.ip_address }}
+
+                |   
+
+                Time: {{ log.timestamp }}
 
             </li>
 
