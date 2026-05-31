@@ -30,13 +30,36 @@ class AccessLog(models.Model):
         )
 
 class LoginLog(models.Model):
-    username = models.CharField(max_length=100)
-    ip_address = models.CharField(max_length=100)
-    status = models.CharField(max_length=20)
-    timestamp = models.DateTimeField(auto_now_add=True)
+
+    user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
+    username = models.CharField(
+        max_length=100
+    )
+
+    ip_address = models.CharField(
+        max_length=100
+    )
+
+    status = models.CharField(
+        max_length=20
+    )
+
+    timestamp = models.DateTimeField(
+        auto_now_add=True
+    )
 
     def __str__(self):
-        return f"{self.username} - {self.status}"
+
+        return (
+            f"{self.username} - "
+            f"{self.status}"
+        )
 
 class CameraLog(models.Model):
     event = models.CharField(max_length=200)

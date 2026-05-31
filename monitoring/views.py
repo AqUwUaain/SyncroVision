@@ -94,6 +94,7 @@ def login_view(request):
         if user is not None:
 
             LoginLog.objects.create(
+                user=user,
                 username=username,
                 ip_address=ip,
                 status='SUCCESS'
@@ -121,6 +122,7 @@ def login_view(request):
                 status = "UNKNOWN_USER"
 
             LoginLog.objects.create(
+                user=None,
                 username=username,
                 ip_address=ip,
                 status=status
@@ -164,6 +166,7 @@ def logout_view(request):
     )
 
     LoginLog.objects.create(
+        user=request.user,
         username=request.user.username,
         ip_address=ip,
         status='LOGOUT'
@@ -202,8 +205,32 @@ def dashboard_view(request):
         ip_address=ip
     )
 
-    accessLogs = AccessLog.objects.order_by('-timestamp')[:5]
-    loginLogs = LoginLog.objects.order_by('-timestamp')[:5]
+    if request.user.is_superuser:
+
+        accessLogs = AccessLog.objects.order_by(
+            '-timestamp'
+        )[:5]
+
+    else:
+
+        accessLogs = AccessLog.objects.exclude(
+            user__is_superuser=True
+        ).order_by(
+            '-timestamp'
+        )[:5]
+    if request.user.is_superuser:
+
+        loginLogs = LoginLog.objects.order_by(
+            '-timestamp'
+        )[:5]
+
+    else:
+
+        loginLogs = LoginLog.objects.exclude(
+            user__is_superuser=True
+        ).order_by(
+            '-timestamp'
+        )[:5]
     cameraLogs = CameraLog.objects.order_by('-timestamp')[:5]
 
     # CAMERA SOURCE DISPLAY
@@ -262,7 +289,7 @@ def camera_settings_view(request):
     global CURRENT_CAMERA_URL
 
 
-    if not request.user.is_superuser:
+    if not request.user.is_staff:
 
         return HttpResponseForbidden(
             "Access Denied"
@@ -837,7 +864,7 @@ def video_feed(request):
 
 @login_required
 def logs_view(request):
-    if not request.user.is_superuser:
+    if not request.user.is_staff:
 
         return HttpResponseForbidden(
             "Access Denied"
@@ -862,8 +889,18 @@ def logs_view(request):
         ip_address=ip
     )
 
-    accessLogs = AccessLog.objects.order_by(
-        '-timestamp'
+    if request.user.is_superuser:
+
+        accessLogs = AccessLog.objects.order_by(
+            '-timestamp'
+        )
+
+    else:
+
+        accessLogs = AccessLog.objects.exclude(
+            user__is_superuser=True
+        ).order_by(
+            '-timestamp'
     )
 
     return render(
@@ -881,7 +918,7 @@ def logs_view(request):
 
 @login_required
 def login_attempts_view(request):
-    if not request.user.is_superuser:
+    if not request.user.is_staff:
 
         return HttpResponseForbidden(
             "Access Denied"
@@ -906,8 +943,18 @@ def login_attempts_view(request):
         ip_address=ip
     )
 
-    loginLogs = LoginLog.objects.order_by(
-        '-timestamp'
+    if request.user.is_superuser:
+
+        loginLogs = LoginLog.objects.order_by(
+            '-timestamp'
+        )
+
+    else:
+
+        loginLogs = LoginLog.objects.exclude(
+            user__is_superuser=True
+        ).order_by(
+            '-timestamp'
     )
 
     return render(
@@ -925,7 +972,7 @@ def login_attempts_view(request):
 
 @login_required
 def camera_logs_view(request):
-    if not request.user.is_superuser:
+    if not request.user.is_staff:
 
         return HttpResponseForbidden(
             "Access Denied"
